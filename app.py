@@ -1,24 +1,23 @@
 import streamlit as st
 import random
 import os
-import time
 import base64
 
-# 音を鳴らす関数（HTMLで非表示再生する仕組みに変更し、バーを消去・バグを解消）
-def play_sound(file_name):
+# 音を鳴らすHTMLを生成し、画面上に表示する関数
+def play_sound_html(file_name):
     path = f'sound/{file_name}'
     if os.path.exists(path):
         with open(path, 'rb') as f:
             data = f.read()
             b64 = base64.b64encode(data).decode()
-            # プレイヤーを表示せず、裏側で自動再生させるHTMLタグ
             md = f"""
                 <audio autoplay style="display:none;">
                 <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
                 </audio>
                 """
             st.markdown(md, unsafe_allow_html=True)
-            time.sleep(2.0)
+    else:
+        st.error(f"エラー: {file_name} が見つかりません。GitHubのファイル名を確認してください。")
 
 def init_game(total_questions, grade):
     st.session_state.count = 0
@@ -27,13 +26,14 @@ def init_game(total_questions, grade):
     st.session_state.wrong_list = []
     st.session_state.total_questions = total_questions
     st.session_state.grade = grade
+    st.session_state.audio_to_play = None # 再生する音を一時保存する変数
     generate_question()
 
 def generate_question():
     st.session_state.a = random.randint(1, 9)
     st.session_state.b = random.randint(1, 9)
 
-# 1年生向けの「5のまとまり」解説を生成する安全な関数
+# 1年生向けの解説生成
 def generate_hint(a, b, ans):
     if a >= 5 and b >= 5:
         return (f"{a} は 5 と {a - 5} に わかれるね。<br>"
@@ -52,7 +52,11 @@ def generate_hint(a, b, ans):
     else:
         return f"{a}こ と {b}こ を あわせると {ans}こ になるよ。ゆびを つかって かぞえてみよう！"
 
+
+# セッションステートの初期化
 if 'page' not in st.session_state: st.session_state.page = "home"
+if 'audio_to_play' not in st.session_state: st.session_state.audio_to_play = None
+
 
 # --- 画面構成 ---
 if st.session_state.page == "home":
@@ -85,22 +89,26 @@ elif st.session_state.page == "setup":
     if st.button("最初の画面にもどる"): st.session_state.page = "home"; st.rerun()
 
 elif st.session_state.page == "math":
+    # 画面描画の最初に、予約されていた音を鳴らす
+    if st.session_state.audio_to_play:
+        play_sound_html(st.session_state.audio_to_play)
+        st.session_state.audio_to_play = None # 鳴らしたらリセット
+
     if not st.session_state.game_over:
         st.markdown(f"## {st.session_state.count + 1}問目")
         st.markdown(f"<h1 style='text-align: center; font-size: 50px;'>{st.session_state.a} ＋ {st.session_state.b} ＝ ？</h1>", unsafe_allow_html=True)
         
-        # キーボード起動を完全に防ぐため、スライダー（つまみ）方式に変更
         user_ans = st.slider("こたえ を あわせてね", min_value=0, max_value=20, value=0, key="ans")
         
         if st.button("こたえあわせ"):
             ans = st.session_state.a + st.session_state.b
             if user_ans == ans:
                 st.success("せいかい！")
-                play_sound('correct.mp3')
+                st.session_state.audio_to_play = 'correct.mp3' # 次の画面で正解音を鳴らすよう予約
                 st.session_state.score += 1
             else:
                 st.error("ざんねん！")
-                play_sound('incorrect.mp3') # 修正・独立させた不正解音の呼び出し
+                st.session_state.audio_to_play = 'incorrect.mp3' # 次の画面で不正解音を鳴らすよう予約
                 hint = generate_hint(st.session_state.a, st.session_state.b, ans)
                 st.session_state.wrong_list.append({'q': f"{st.session_state.a} ＋ {st.session_state.b}", 'ans': ans, 'hint': hint})
             
