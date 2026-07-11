@@ -2,16 +2,19 @@ import streamlit as st
 import random
 import os
 import base64
+import uuid  # 毎回新しい要素として認識させるためのID生成ライブラリ
 
-# 音を鳴らすHTMLを生成し、画面上に表示する関数
+# 音を鳴らすHTMLを生成し、画面上に表示する関数（DOMキャッシュ対策済み）
 def play_sound_html(file_name):
     path = f'sound/{file_name}'
     if os.path.exists(path):
         with open(path, 'rb') as f:
             data = f.read()
             b64 = base64.b64encode(data).decode()
+            # 毎回異なるIDを付与してブラウザに強制的に新規再生させる
+            unique_id = str(uuid.uuid4())
             md = f"""
-                <audio autoplay style="display:none;">
+                <audio id="{unique_id}" autoplay style="display:none;">
                 <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
                 </audio>
                 """
@@ -26,7 +29,7 @@ def init_game(total_questions, grade):
     st.session_state.wrong_list = []
     st.session_state.total_questions = total_questions
     st.session_state.grade = grade
-    st.session_state.audio_to_play = None # 再生する音を一時保存する変数
+    st.session_state.audio_to_play = None 
     generate_question()
 
 def generate_question():
@@ -78,7 +81,24 @@ elif st.session_state.page == "subject":
 
 elif st.session_state.page == "setup":
     st.header(f"{st.session_state.grade_select}年生のさんすう")
+    
+    # CSSを用いてラジオボタンの文字サイズを強制的に大きくする
+    st.markdown(
+        """
+        <style>
+        div[role="radiogroup"] label span {
+            font-size: 35px !important;
+            font-weight: bold;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    
     total = st.radio("もんだいすう をえらんでね", [5, 10])
+    
+    # CSSの影響を他の要素に出さないための区切り
+    st.markdown("<br>", unsafe_allow_html=True)
     
     if st.button("スタート！"):
         init_game(total, st.session_state.grade_select)
@@ -104,11 +124,11 @@ elif st.session_state.page == "math":
             ans = st.session_state.a + st.session_state.b
             if user_ans == ans:
                 st.success("せいかい！")
-                st.session_state.audio_to_play = 'correct.mp3' # 次の画面で正解音を鳴らすよう予約
+                st.session_state.audio_to_play = 'correct.mp3'
                 st.session_state.score += 1
             else:
                 st.error("ざんねん！")
-                st.session_state.audio_to_play = 'incorrect.mp3' # 次の画面で不正解音を鳴らすよう予約
+                st.session_state.audio_to_play = 'incorrect.mp3'
                 hint = generate_hint(st.session_state.a, st.session_state.b, ans)
                 st.session_state.wrong_list.append({'q': f"{st.session_state.a} ＋ {st.session_state.b}", 'ans': ans, 'hint': hint})
             
