@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>おべんきょうドリル</title>
     <style>
-        /* 全体の設定（下部に固定ボタン用の余白を確保） */
         body { font-family: sans-serif; text-align: center; margin: 0; padding: 10px; background-color: #f9f9f9; padding-bottom: 80px; }
         .page { display: none; }
         .active { display: block; }
@@ -13,7 +12,6 @@
         h2 { font-size: 24px; }
         .question-text { font-size: 50px; font-weight: bold; margin: 20px 0; }
         
-        /* 共通ボタンのデザイン */
         button {
             font-size: 20px; padding: 15px 25px; margin: 10px;
             background-color: #007bff; color: white; border: none; border-radius: 10px;
@@ -22,46 +20,46 @@
         button:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .btn-warning { background-color: #ffc107; color: black; }
         
-        /* 0〜20の選択肢ボタン（グリッドレイアウトで5列に自動折り返し） */
-        .number-pad {
+        /* テンキー（電卓型入力）のレイアウト */
+        .tenkey-pad {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
-            max-width: 400px;
-            margin: 0 auto 20px auto;
+            max-width: 300px;
+            margin: 20px auto;
         }
-        .number-btn {
-            font-size: 24px;
+        .tenkey-btn {
+            font-size: 30px;
             padding: 15px 0;
-            margin: 0;
             background-color: #fff;
             color: #333;
             border: 2px solid #007bff;
             border-radius: 8px;
             font-weight: bold;
         }
-        .number-btn:active { background-color: #007bff; color: #fff; }
+        .tenkey-btn:active { background-color: #007bff; color: #fff; }
+        .btn-clear { background-color: #dc3545; color: white; border: none; }
+        .btn-submit { background-color: #28a745; color: white; border: none; grid-column: span 2; }
+        
+        /* 入力結果の表示エリア */
+        .input-display {
+            font-size: 40px; font-weight: bold;
+            min-height: 60px; width: 250px;
+            margin: 0 auto; line-height: 60px;
+            border: 3px solid #ccc; border-radius: 10px;
+            background-color: #fff; transition: background-color 0.3s;
+        }
 
-        /* 常に最下部に表示される「最初に戻る」ボタン */
         .fixed-home-btn {
-            position: fixed;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #17a2b8;
-            font-size: 18px;
-            padding: 10px 20px;
-            width: 90%;
-            max-width: 400px;
-            z-index: 1000; /* 他の要素より上に表示 */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+            background-color: #17a2b8; font-size: 18px; padding: 10px 20px;
+            width: 90%; max-width: 400px; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         
-        /* ラジオボタン */
-        .radio-group label { font-size: 24px; font-weight: bold; margin: 0 10px; cursor: pointer; }
-        .radio-group input[type="radio"] { transform: scale(1.5); margin-right: 5px; }
+        .radio-group { text-align: left; display: inline-block; margin-bottom: 15px; }
+        .radio-group label { font-size: 20px; font-weight: bold; display: block; margin: 10px 0; cursor: pointer; }
+        .radio-group input[type="radio"] { transform: scale(1.5); margin-right: 10px; }
         
-        /* 解説のアコーディオン */
         .expander { background-color: #e9ecef; margin: 10px auto; width: 95%; border-radius: 5px; text-align: left; }
         .expander-header { padding: 10px; font-size: 18px; font-weight: bold; cursor: pointer; background-color: #dee2e6; border-radius: 5px; }
         .expander-content { padding: 10px; font-size: 18px; display: none; }
@@ -71,14 +69,12 @@
 </head>
 <body>
 
-    <!-- 1. ホーム画面 -->
     <div id="page-home" class="page active">
         <h1>おべんきょうドリル</h1>
         <h2>やりたいことをえらんでね</h2>
         <button onclick="goToPage('page-subject')">さんすう</button>
     </div>
 
-    <!-- 2. 学年選択画面 -->
     <div id="page-subject" class="page">
         <h2>さんすう：学年をえらんでね</h2>
         <div>
@@ -90,29 +86,63 @@
         </div>
     </div>
 
-    <!-- 3. 設定画面 -->
+    <!-- 設定画面に「難易度」と「計算の種類」を追加 -->
     <div id="page-setup" class="page">
         <h2 id="setup-title">1年生のさんすう</h2>
-        <h2>もんだいすう をえらんでね</h2>
-        <div class="radio-group">
-            <label><input type="radio" name="total_q" value="5" checked> 5問</label>
-            <label><input type="radio" name="total_q" value="10"> 10問</label>
+        
+        <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
+            <div>
+                <h3>けいさん</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="operation" value="add" checked> たしざん (＋)</label>
+                    <label><input type="radio" name="operation" value="sub"> ひきざん (－)</label>
+                </div>
+            </div>
+            <div>
+                <h3>むずかしさ</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="difficulty" value="1" checked> 1ケタ ＋ 1ケタ</label>
+                    <label><input type="radio" name="difficulty" value="2"> 2ケタ ＋ 1ケタ</label>
+                    <label><input type="radio" name="difficulty" value="3"> 2ケタ ＋ 2ケタ</label>
+                </div>
+            </div>
         </div>
-        <br><br>
+
+        <hr>
+        <h3>もんだいすう</h3>
+        <div class="radio-group" style="display: block; text-align: center;">
+            <label style="display: inline; margin-right: 20px;"><input type="radio" name="total_q" value="5" checked> 5問</label>
+            <label style="display: inline;"><input type="radio" name="total_q" value="10"> 10問</label>
+        </div>
+        
+        <br>
         <button onclick="startGame()">スタート！</button>
     </div>
 
-    <!-- 4. 問題画面 -->
     <div id="page-math" class="page">
         <h2 id="question-count">1問目</h2>
         <div id="question-text" class="question-text">? ＋ ? ＝ ？</div>
         
-        <h2>こたえを えらんでね</h2>
-        <!-- JavaScriptでここに0〜20のボタンを自動配置します -->
-        <div id="number-pad" class="number-pad"></div>
+        <!-- ポップアップの代わりになる入力・フィードバック画面 -->
+        <div id="input-display" class="input-display"></div>
+        
+        <!-- テンキー入力 -->
+        <div class="tenkey-pad">
+            <button class="tenkey-btn" onclick="inputNum(7)">7</button>
+            <button class="tenkey-btn" onclick="inputNum(8)">8</button>
+            <button class="tenkey-btn" onclick="inputNum(9)">9</button>
+            <button class="tenkey-btn" onclick="inputNum(4)">4</button>
+            <button class="tenkey-btn" onclick="inputNum(5)">5</button>
+            <button class="tenkey-btn" onclick="inputNum(6)">6</button>
+            <button class="tenkey-btn" onclick="inputNum(1)">1</button>
+            <button class="tenkey-btn" onclick="inputNum(2)">2</button>
+            <button class="tenkey-btn" onclick="inputNum(3)">3</button>
+            <button class="tenkey-btn btn-clear" onclick="clearInput()">けす</button>
+            <button class="tenkey-btn" onclick="inputNum(0)">0</button>
+            <button class="tenkey-btn btn-submit" onclick="submitAnswer()">こたえる</button>
+        </div>
     </div>
 
-    <!-- 5. 結果画面 -->
     <div id="page-result" class="page">
         <h1>おつかれさま！</h1>
         <h2 id="result-score">10問中 8問 正解！</h2>
@@ -127,58 +157,46 @@
         <button onclick="startGame(true)">もういちどあそぶ</button>
     </div>
 
-    <!-- 常に最下部に表示されるホームボタン（どこにいても押せます） -->
     <button class="fixed-home-btn" onclick="goToHome()">🏠 最初の画面にもどる</button>
 
-    <!-- JavaScript ロジック -->
     <script>
-        // 音声ファイルの準備（"?v=1"をつけてブラウザのキャッシュを強制回避）
         const soundCorrect = new Audio('sound/correct.mp3?v=1');
         const soundIncorrect = new Audio('sound/incorrect.mp3?v=1');
 
-        let currentGrade = 1;
         let totalQuestions = 5;
         let currentCount = 0;
         let score = 0;
         let valA = 0;
         let valB = 0;
         let wrongQuestions = [];
-
-        // ページ読み込み時に0〜20のボタンを生成
-        window.onload = function() {
-            const pad = document.getElementById('number-pad');
-            for(let i=0; i<=20; i++) {
-                const btn = document.createElement('button');
-                btn.className = 'number-btn';
-                btn.innerText = i;
-                // ボタンを押した瞬間に checkAnswer に数字を送る
-                btn.onclick = function() { checkAnswer(i); };
-                pad.appendChild(btn);
-            }
-        };
+        let currentOperation = 'add';
+        let currentDifficulty = 1;
+        let userInputValue = "";
+        let isProcessing = false; // 連打防止フラグ
 
         function goToPage(pageId) {
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-            window.scrollTo(0, 0); // ページ遷移時に一番上へスクロール
+            window.scrollTo(0, 0);
         }
 
-        function goToHome() {
-            goToPage('page-home');
-        }
+        function goToHome() { goToPage('page-home'); }
 
         function selectGrade(grade) {
-            currentGrade = grade;
             document.getElementById('setup-title').innerText = grade + "年生のさんすう";
             goToPage('page-setup');
         }
 
         function startGame(isRetry = false) {
             if (!isRetry) {
-                const radios = document.getElementsByName('total_q');
-                for (let radio of radios) {
-                    if (radio.checked) totalQuestions = parseInt(radio.value);
-                }
+                const qRadios = document.getElementsByName('total_q');
+                for (let r of qRadios) if (r.checked) totalQuestions = parseInt(r.value);
+                
+                const opRadios = document.getElementsByName('operation');
+                for (let r of opRadios) if (r.checked) currentOperation = r.value;
+                
+                const diffRadios = document.getElementsByName('difficulty');
+                for (let r of diffRadios) if (r.checked) currentDifficulty = parseInt(r.value);
             }
             currentCount = 0;
             score = 0;
@@ -188,48 +206,107 @@
         }
 
         function generateQuestion() {
-            valA = Math.floor(Math.random() * 9) + 1;
-            valB = Math.floor(Math.random() * 9) + 1;
+            // 難易度に応じた数字の生成
+            if (currentDifficulty === 1) {
+                valA = Math.floor(Math.random() * 9) + 1; // 1-9
+                valB = Math.floor(Math.random() * 9) + 1; // 1-9
+            } else if (currentDifficulty === 2) {
+                valA = Math.floor(Math.random() * 90) + 10; // 10-99
+                valB = Math.floor(Math.random() * 9) + 1;  // 1-9
+            } else {
+                valA = Math.floor(Math.random() * 90) + 10; // 10-99
+                valB = Math.floor(Math.random() * 90) + 10; // 10-99
+            }
+
+            // 引き算の場合、必ず valA >= valB になるように入れ替える（マイナス防止）
+            if (currentOperation === 'sub' && valA < valB) {
+                let temp = valA;
+                valA = valB;
+                valB = temp;
+            }
+
+            const symbol = currentOperation === 'add' ? '＋' : '－';
             document.getElementById('question-count').innerText = (currentCount + 1) + "問目";
-            document.getElementById('question-text').innerText = valA + " ＋ " + valB + " ＝ ？";
+            document.getElementById('question-text').innerText = `${valA} ${symbol} ${valB} ＝ ？`;
+            
+            userInputValue = "";
+            updateDisplay();
+            isProcessing = false;
         }
 
-        function generateHint(a, b, ans) {
-            if (a >= 5 && b >= 5) {
-                return `${a} は 5 と ${a - 5} に わかれるね。<br>${b} は 5 と ${b - 5} に わかれるね。<br>5 と 5 で 10 になるよ。<br>のこりの ${a - 5} と ${b - 5} を たすと ${(a - 5) + (b - 5)} だね。<br>10 と あわせて ${ans} になるよ！`;
-            } else if (a >= 5 && b < 5) {
-                return `${a} は 5 と ${a - 5} に わかれるね。<br>のこりの ${a - 5} と ${b} を たすと ${(a - 5) + b} だね。<br>5 と あわせて ${ans} になるよ！`;
-            } else if (a < 5 && b >= 5) {
-                return `${b} は 5 と ${b - 5} に わかれるね。<br>${a} と のこりの ${b - 5} を たすと ${a + (b - 5)} だね。<br>5 と あわせて ${ans} になるよ！`;
-            } else {
-                return `${a}こ と ${b}こ を あわせると ${ans}こ になるよ。ゆびを つかって かぞえてみよう！`;
+        function inputNum(num) {
+            if (isProcessing) return;
+            if (userInputValue.length < 3) { // 最大3ケタまで
+                userInputValue += num.toString();
+                updateDisplay();
             }
         }
 
-        // タップされたボタンの数字（userAns）を受け取って判定
-        function checkAnswer(userAns) {
-            const correctAns = valA + valB;
+        function clearInput() {
+            if (isProcessing) return;
+            userInputValue = "";
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('input-display').innerText = userInputValue;
+        }
+
+        // 難易度や種類に応じた解説の生成
+        function generateHint(a, b, ans, op, diff) {
+            const symbol = op === 'add' ? '＋' : '－';
+            const eq = `${a} ${symbol} ${b} ＝ ${ans}`;
+            
+            if (diff === 1 && op === 'add') {
+                if (a >= 5 && b >= 5) {
+                    return `${a} は 5 と ${a - 5} に わかれるね。<br>${b} は 5 と ${b - 5} に わかれるね。<br>5 と 5 で 10 になるよ。<br>のこりの ${a - 5} と ${b - 5} を たすと ${(a - 5) + (b - 5)} だね。<br>10 と あわせて ${ans} になるよ！`;
+                } else if (a >= 5 && b < 5) {
+                    return `${a} は 5 と ${a - 5} に わかれるね。<br>のこりの ${a - 5} と ${b} を たすと ${(a - 5) + b} だね。<br>5 と あわせて ${ans} になるよ！`;
+                } else if (a < 5 && b >= 5) {
+                    return `${b} は 5 と ${b - 5} に わかれるね。<br>${a} と のこりの ${b - 5} を たすと ${a + (b - 5)} だね。<br>5 と あわせて ${ans} になるよ！`;
+                } else {
+                    return `${eq}<br>ゆびを つかって かぞえてみよう！`;
+                }
+            } else {
+                return `【こたえ】 ${ans}<br>ひっさん を つかって けいさん してみよう！`;
+            }
+        }
+
+        function submitAnswer() {
+            if (userInputValue === "" || isProcessing) return;
+            isProcessing = true; // 処理中は追加入力をブロック
+
+            const userAns = parseInt(userInputValue);
+            const correctAns = currentOperation === 'add' ? (valA + valB) : (valA - valB);
+            const display = document.getElementById('input-display');
 
             if (userAns === correctAns) {
                 soundCorrect.currentTime = 0;
                 soundCorrect.play();
                 score++;
-                alert("せいかい！");
+                display.style.backgroundColor = '#c8e6c9'; // 背景を緑に
+                display.innerText = "〇 せいかい";
             } else {
                 soundIncorrect.currentTime = 0;
                 soundIncorrect.play();
-                alert("ざんねん！ 答えは " + correctAns + " でした。");
+                display.style.backgroundColor = '#ffcdd2'; // 背景を赤に
+                display.innerText = "× ざんねん";
                 
-                const hint = generateHint(valA, valB, correctAns);
-                wrongQuestions.push({ q: `${valA} ＋ ${valB}`, ans: correctAns, hint: hint });
+                const hint = generateHint(valA, valB, correctAns, currentOperation, currentDifficulty);
+                const symbol = currentOperation === 'add' ? '＋' : '－';
+                wrongQuestions.push({ q: `${valA} ${symbol} ${valB}`, ans: correctAns, hint: hint });
             }
 
-            currentCount++;
-            if (currentCount >= totalQuestions) {
-                showResult();
-            } else {
-                generateQuestion();
-            }
+            // 1.5秒後に次の問題へ
+            setTimeout(() => {
+                display.style.backgroundColor = '#fff';
+                currentCount++;
+                if (currentCount >= totalQuestions) {
+                    showResult();
+                } else {
+                    generateQuestion();
+                }
+            }, 1500);
         }
 
         function showResult() {
