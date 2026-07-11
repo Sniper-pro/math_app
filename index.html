@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>おべんきょうドリル</title>
     <style>
-        body { font-family: sans-serif; text-align: center; margin: 0; padding: 10px; background-color: #f9f9f9; }
+        body { font-family: sans-serif; text-align: center; margin: 0; padding: 10px; background-color: #f9f9f9; padding-bottom: 80px; }
         .page { display: none; }
         .active { display: block; }
         h1 { font-size: 30px; margin-bottom: 10px; }
@@ -18,24 +18,28 @@
         }
         button:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .btn-warning { background-color: #ffc107; color: black; }
+        .btn-success { background-color: #28a745; }
         
-        /* 問題画面のコンテナ（通常は縦積み） */
+        /* 問題の表示エリア */
         .math-container { display: block; }
         .question-text { font-size: 50px; font-weight: bold; margin: 20px 0; }
         
+        /* 筆算（ひっさん）用の縦型レイアウト */
+        .hissan-container {
+            font-size: 50px; font-weight: bold; margin: 20px auto; width: 180px; text-align: right; letter-spacing: 10px;
+        }
+        .hissan-top { padding-right: 10px; }
+        .hissan-bottom { display: flex; justify-content: space-between; border-bottom: 5px solid #333; padding-right: 10px; padding-bottom: 5px; }
+        
         /* テンキーのレイアウト */
         .tenkey-pad {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            max-width: 300px;
-            margin: 20px auto;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+            max-width: 350px; margin: 20px auto;
         }
         .tenkey-btn {
             font-size: 30px; padding: 15px 0;
             background-color: #fff; color: #333;
-            border: 2px solid #007bff; border-radius: 8px;
-            font-weight: bold;
+            border: 2px solid #007bff; border-radius: 8px; font-weight: bold;
         }
         .tenkey-btn:active { background-color: #007bff; color: #fff; }
         .btn-clear { background-color: #dc3545; color: white; border: none; font-size: 20px; }
@@ -43,7 +47,7 @@
         
         .input-display {
             font-size: 40px; font-weight: bold; min-height: 60px; width: 250px;
-            margin: 0 auto; line-height: 60px; border: 3px solid #ccc; border-radius: 10px;
+            margin: 0 auto 20px auto; line-height: 60px; border: 3px solid #ccc; border-radius: 10px;
             background-color: #fff; transition: background-color 0.3s;
         }
 
@@ -56,30 +60,20 @@
         .radio-group label { font-size: 20px; font-weight: bold; display: block; margin: 10px 0; cursor: pointer; }
         .radio-group input[type="radio"] { transform: scale(1.5); margin-right: 10px; }
         
+        .setup-section { display: none; } /* 学年ごとの設定を切り替える用 */
+        
         .expander { background-color: #e9ecef; margin: 10px auto; width: 95%; border-radius: 5px; text-align: left; }
         .expander-header { padding: 10px; font-size: 18px; font-weight: bold; cursor: pointer; background-color: #dee2e6; border-radius: 5px; }
         .expander-content { padding: 10px; font-size: 18px; display: none; }
-        
         hr { margin: 20px 0; border: 1px solid #ddd; }
 
-        /* --- 横画面（ランドスケープモード）への最適化 --- */
+        /* --- 横画面（iPad等のランドスケープ）への最適化 --- */
         @media (orientation: landscape) and (min-width: 600px) {
-            .math-container {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 40px;
-                margin-top: 10px;
-            }
-            .math-left {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-            }
-            .math-right { margin-top: 0; }
-            .question-text { margin: 10px 0; }
-            .tenkey-pad { margin: 0 auto; }
+            .math-container { display: flex; justify-content: center; align-items: center; gap: 60px; margin-top: 10px; }
+            .math-left { display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 300px; }
+            .math-right { flex-grow: 1; max-width: 500px; } /* テンキーのエリアを横に広げる */
+            .tenkey-pad { max-width: 100%; gap: 15px; } /* 横幅いっぱいを使い、ボタンの間隔を調整 */
+            .tenkey-btn { padding: 20px 0; font-size: 35px; } /* ボタン自体を大きく */
             .btn-home { margin-top: 15px; }
         }
     </style>
@@ -96,10 +90,10 @@
         <h2>さんすう：学年をえらんでね</h2>
         <div>
             <button onclick="selectGrade(1)">1年生</button>
-            <button class="btn-warning" onclick="alert('2年生はまだ準備中です！')">2年生</button>
+            <button class="btn-success" onclick="selectGrade(2)">2年生</button>
         </div>
         <div>
-            <button class="btn-warning" onclick="alert('準備中です！')">3年生〜6年生</button>
+            <button class="btn-warning" onclick="selectGrade(3)">3年生</button>
         </div>
         <hr>
         <button class="btn-home" onclick="goToHome()">🏠 最初の画面にもどる</button>
@@ -107,24 +101,51 @@
 
     <!-- 設定画面 -->
     <div id="page-setup" class="page">
-        <h2 id="setup-title">1年生のさんすう</h2>
+        <h2 id="setup-title"></h2>
         
         <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
-            <div>
-                <h3>けいさん</h3>
-                <div class="radio-group">
-                    <label><input type="radio" name="operation" value="add" checked> たしざん (＋)</label>
-                    <label><input type="radio" name="operation" value="sub"> ひきざん (－)</label>
+            
+            <!-- 1年生用の設定 -->
+            <div id="setup-grade-1" class="setup-section">
+                <div>
+                    <h3>けいさん</h3>
+                    <div class="radio-group">
+                        <label><input type="radio" name="op_g1" value="add" checked> たしざん (＋)</label>
+                        <label><input type="radio" name="op_g1" value="sub"> ひきざん (－)</label>
+                    </div>
+                </div>
+                <div>
+                    <h3>むずかしさ</h3>
+                    <div class="radio-group">
+                        <label><input type="radio" name="diff_g1" value="1" checked> 1ケタ と 1ケタ</label>
+                        <label><input type="radio" name="diff_g1" value="2"> 2ケタ と 1ケタ</label>
+                        <label><input type="radio" name="diff_g1" value="3"> 2ケタ と 2ケタ</label>
+                    </div>
                 </div>
             </div>
-            <div>
-                <h3>むずかしさ</h3>
-                <div class="radio-group">
-                    <label><input type="radio" name="difficulty" value="1" checked> 1ケタ と 1ケタ</label>
-                    <label><input type="radio" name="difficulty" value="2"> 2ケタ と 1ケタ</label>
-                    <label><input type="radio" name="difficulty" value="3"> 2ケタ と 2ケタ</label>
+
+            <!-- 2年生用の設定 -->
+            <div id="setup-grade-2" class="setup-section">
+                <div>
+                    <h3>けいさん・むずかしさ</h3>
+                    <div class="radio-group">
+                        <label><input type="radio" name="op_g2" value="mul" checked> かけざん (九九)</label>
+                        <label><input type="radio" name="op_g2" value="hissan_add"> ひっさん (たしざん)</label>
+                        <label><input type="radio" name="op_g2" value="hissan_sub"> ひっさん (ひきざん)</label>
+                    </div>
                 </div>
             </div>
+
+            <!-- 3年生用の設定 -->
+            <div id="setup-grade-3" class="setup-section">
+                <div>
+                    <h3>けいさん</h3>
+                    <div class="radio-group">
+                        <label><input type="radio" name="op_g3" value="div" checked> わりざん (÷)</label>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <hr>
@@ -144,10 +165,20 @@
     <div id="page-math" class="page">
         <h2 id="question-count">1問目</h2>
         
-        <!-- 横画面対応のための階層化 -->
         <div class="math-container">
             <div class="math-left">
-                <div id="question-text" class="question-text">? ＋ ? ＝ ？</div>
+                <!-- 通常の横式 -->
+                <div id="question-text" class="question-text"></div>
+                
+                <!-- 筆算用の縦式 -->
+                <div id="question-hissan" class="hissan-container" style="display: none;">
+                    <div id="hissan-top" class="hissan-top"></div>
+                    <div id="hissan-bottom" class="hissan-bottom">
+                        <span id="hissan-symbol"></span>
+                        <span id="hissan-num2"></span>
+                    </div>
+                </div>
+                
                 <div id="input-display" class="input-display"></div>
             </div>
             
@@ -168,7 +199,6 @@
                 </div>
             </div>
         </div>
-
         <button class="btn-home" onclick="goToHome()">🏠 最初の画面にもどる</button>
     </div>
 
@@ -176,13 +206,11 @@
     <div id="page-result" class="page">
         <h1>おつかれさま！</h1>
         <h2 id="result-score">10問中 8問 正解！</h2>
-        
         <div id="wrong-list-container" style="display: none;">
             <hr>
             <h2>ふくしゅう しよう！</h2>
             <div id="wrong-list"></div>
         </div>
-        
         <hr>
         <button onclick="startGame(true)">もういちどあそぶ</button>
         <br>
@@ -190,14 +218,15 @@
     </div>
 
     <script>
+        let currentGrade = 1;
         let totalQuestions = 5;
         let currentCount = 0;
         let score = 0;
         let valA = 0;
         let valB = 0;
+        let currentMode = ''; // add, sub, mul, div, hissan_add, hissan_sub
+        let currentDiff = 1;
         let wrongQuestions = [];
-        let currentOperation = 'add';
-        let currentDifficulty = 1;
         let userInputValue = "";
         
         let isProcessing = false; 
@@ -215,7 +244,6 @@
                 nextQuestionTimer = null;
             }
             isProcessing = false;
-
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             window.scrollTo(0, 0);
@@ -224,7 +252,13 @@
         function goToHome() { goToPage('page-home'); }
 
         function selectGrade(grade) {
+            currentGrade = grade;
             document.getElementById('setup-title').innerText = grade + "年生のさんすう";
+            
+            // 学年に応じて設定画面の表示を切り替え
+            document.querySelectorAll('.setup-section').forEach(el => el.style.display = 'none');
+            document.getElementById('setup-grade-' + grade).style.display = 'block';
+            
             goToPage('page-setup');
         }
 
@@ -233,11 +267,14 @@
                 const qRadios = document.getElementsByName('total_q');
                 for (let r of qRadios) if (r.checked) totalQuestions = parseInt(r.value);
                 
-                const opRadios = document.getElementsByName('operation');
-                for (let r of opRadios) if (r.checked) currentOperation = r.value;
-                
-                const diffRadios = document.getElementsByName('difficulty');
-                for (let r of diffRadios) if (r.checked) currentDifficulty = parseInt(r.value);
+                if (currentGrade === 1) {
+                    for (let r of document.getElementsByName('op_g1')) if (r.checked) currentMode = r.value;
+                    for (let r of document.getElementsByName('diff_g1')) if (r.checked) currentDiff = parseInt(r.value);
+                } else if (currentGrade === 2) {
+                    for (let r of document.getElementsByName('op_g2')) if (r.checked) currentMode = r.value;
+                } else if (currentGrade === 3) {
+                    for (let r of document.getElementsByName('op_g3')) if (r.checked) currentMode = r.value;
+                }
             }
             currentCount = 0;
             score = 0;
@@ -247,27 +284,52 @@
         }
 
         function generateQuestion() {
-            if (currentDifficulty === 1) {
-                valA = Math.floor(Math.random() * 9) + 1;
+            // 表示モードのリセット
+            document.getElementById('question-text').style.display = 'block';
+            document.getElementById('question-hissan').style.display = 'none';
+
+            if (currentGrade === 1) {
+                if (currentDiff === 1) {
+                    valA = Math.floor(Math.random() * 9) + 1;
+                    valB = Math.floor(Math.random() * 9) + 1;
+                } else if (currentDiff === 2) {
+                    valA = Math.floor(Math.random() * 90) + 10;
+                    valB = Math.floor(Math.random() * 9) + 1;
+                } else {
+                    valA = Math.floor(Math.random() * 90) + 10;
+                    valB = Math.floor(Math.random() * 90) + 10;
+                }
+                if (currentMode === 'sub' && valA < valB) { let t = valA; valA = valB; valB = t; }
+                const sym = currentMode === 'add' ? '＋' : '－';
+                document.getElementById('question-text').innerText = `${valA} ${sym} ${valB} ＝ ？`;
+                
+            } else if (currentGrade === 2) {
+                if (currentMode === 'mul') {
+                    // 九九
+                    valA = Math.floor(Math.random() * 9) + 1;
+                    valB = Math.floor(Math.random() * 9) + 1;
+                    document.getElementById('question-text').innerText = `${valA} × ${valB} ＝ ？`;
+                } else {
+                    // 筆算（2ケタ+2ケタ、または2ケタ-2ケタ）
+                    valA = Math.floor(Math.random() * 90) + 10;
+                    valB = Math.floor(Math.random() * 90) + 10;
+                    if (currentMode === 'hissan_sub' && valA < valB) { let t = valA; valA = valB; valB = t; }
+                    
+                    document.getElementById('question-text').style.display = 'none';
+                    document.getElementById('question-hissan').style.display = 'block';
+                    document.getElementById('hissan-top').innerText = valA;
+                    document.getElementById('hissan-symbol').innerText = currentMode === 'hissan_add' ? '+' : '-';
+                    document.getElementById('hissan-num2').innerText = valB;
+                }
+            } else if (currentGrade === 3) {
+                // 割り算（余りなし。九九の逆算）
+                let ans = Math.floor(Math.random() * 9) + 1;
                 valB = Math.floor(Math.random() * 9) + 1;
-            } else if (currentDifficulty === 2) {
-                valA = Math.floor(Math.random() * 90) + 10;
-                valB = Math.floor(Math.random() * 9) + 1;
-            } else {
-                valA = Math.floor(Math.random() * 90) + 10;
-                valB = Math.floor(Math.random() * 90) + 10;
+                valA = ans * valB;
+                document.getElementById('question-text').innerText = `${valA} ÷ ${valB} ＝ ？`;
             }
 
-            if (currentOperation === 'sub' && valA < valB) {
-                let temp = valA;
-                valA = valB;
-                valB = temp;
-            }
-
-            const symbol = currentOperation === 'add' ? '＋' : '－';
             document.getElementById('question-count').innerText = (currentCount + 1) + "問目";
-            document.getElementById('question-text').innerText = `${valA} ${symbol} ${valB} ＝ ？`;
-            
             userInputValue = "";
             updateDisplay();
             isProcessing = false;
@@ -275,7 +337,7 @@
 
         function inputNum(num) {
             if (isProcessing) return;
-            if (userInputValue.length < 3) {
+            if (userInputValue.length < 4) { // 答えが3桁以上になる場合も考慮
                 userInputValue += num.toString();
                 updateDisplay();
             }
@@ -292,20 +354,31 @@
             document.getElementById('input-display').style.backgroundColor = '#fff';
         }
 
-        function generateHint(a, b, ans, op, diff) {
-            const symbol = op === 'add' ? '＋' : '－';
-            const eq = `${a} ${symbol} ${b} ＝ ${ans}`;
-            
-            if (diff === 1 && op === 'add') {
-                if (a >= 5 && b >= 5) {
-                    return `${a} は 5 と ${a - 5} に わかれるね。<br>${b} は 5 と ${b - 5} に わかれるね。<br>5 と 5 で 10 になるよ。<br>のこりの ${a - 5} と ${b - 5} を たすと ${(a - 5) + (b - 5)} だね。<br>10 と あわせて ${ans} になるよ！`;
-                } else if (a >= 5 && b < 5) {
-                    return `${a} は 5 と ${a - 5} に わかれるね。<br>のこりの ${a - 5} と ${b} を たすと ${(a - 5) + b} だね。<br>5 と あわせて ${ans} になるよ！`;
-                } else if (a < 5 && b >= 5) {
-                    return `${b} は 5 と ${b - 5} に わかれるね。<br>${a} と のこりの ${b - 5} を たすと ${a + (b - 5)} だね。<br>5 と あわせて ${ans} になるよ！`;
-                } else {
-                    return `${eq}<br>ゆびを つかって かぞえてみよう！`;
-                }
+        function getCorrectAns() {
+            if (currentMode === 'add' || currentMode === 'hissan_add') return valA + valB;
+            if (currentMode === 'sub' || currentMode === 'hissan_sub') return valA - valB;
+            if (currentMode === 'mul') return valA * valB;
+            if (currentMode === 'div') return valA / valB;
+            return 0;
+        }
+
+        function generateHint(a, b, ans, mode) {
+            let eq = "";
+            if (mode === 'add') eq = `${a} ＋ ${b} ＝ ${ans}`;
+            else if (mode === 'sub') eq = `${a} － ${b} ＝ ${ans}`;
+            else if (mode === 'mul') eq = `${a} × ${b} ＝ ${ans}`;
+            else if (mode === 'div') eq = `${a} ÷ ${b} ＝ ${ans}`;
+            else if (mode === 'hissan_add' || mode === 'hissan_sub') return `【こたえ】 ${ans}<br>くらい を あわせて けいさん しよう！`;
+
+            if (currentGrade === 1 && mode === 'add' && currentDiff === 1) {
+                if (a >= 5 && b >= 5) return `${a} は 5 と ${a - 5} に わかれるね。<br>${b} は 5 と ${b - 5} に わかれるね。<br>5 と 5 で 10 になるよ。<br>のこりの ${a - 5} と ${b - 5} を たすと ${(a - 5) + (b - 5)} だね。<br>10 と あわせて ${ans} になるよ！`;
+                else if (a >= 5 && b < 5) return `${a} は 5 と ${a - 5} に わかれるね。<br>のこりの ${a - 5} と ${b} を たすと ${(a - 5) + b} だね。<br>5 と あわせて ${ans} になるよ！`;
+                else if (a < 5 && b >= 5) return `${b} は 5 と ${b - 5} に わかれるね。<br>${a} と のこりの ${b - 5} を たすと ${a + (b - 5)} だね。<br>5 と あわせて ${ans} になるよ！`;
+                else return `${eq}<br>ゆびを つかって かぞえてみよう！`;
+            } else if (mode === 'mul') {
+                return `【こたえ】 ${ans}<br>九九の「${a}のだん」を おもいだそう！`;
+            } else if (mode === 'div') {
+                return `【こたえ】 ${ans}<br>九九の「${b}のだん」で こたえが ${a} になるものを さがそう！`;
             } else {
                 return `【こたえ】 ${ans}<br>ひっさん を つかって けいさん してみよう！`;
             }
@@ -316,7 +389,7 @@
             isProcessing = true; 
 
             const userAns = parseInt(userInputValue);
-            const correctAns = currentOperation === 'add' ? (valA + valB) : (valA - valB);
+            const correctAns = getCorrectAns();
             const display = document.getElementById('input-display');
 
             if (userAns === correctAns) {
@@ -329,9 +402,16 @@
                 display.style.backgroundColor = '#ffcdd2';
                 display.innerText = "× ざんねん";
                 
-                const hint = generateHint(valA, valB, correctAns, currentOperation, currentDifficulty);
-                const symbol = currentOperation === 'add' ? '＋' : '－';
-                wrongQuestions.push({ q: `${valA} ${symbol} ${valB}`, ans: correctAns, hint: hint });
+                const hint = generateHint(valA, valB, correctAns, currentMode);
+                let qText = "";
+                if (currentMode === 'add') qText = `${valA} ＋ ${valB}`;
+                else if (currentMode === 'sub') qText = `${valA} － ${valB}`;
+                else if (currentMode === 'mul') qText = `${valA} × ${valB}`;
+                else if (currentMode === 'div') qText = `${valA} ÷ ${valB}`;
+                else if (currentMode === 'hissan_add') qText = `(ひっさん) ${valA} ＋ ${valB}`;
+                else if (currentMode === 'hissan_sub') qText = `(ひっさん) ${valA} － ${valB}`;
+
+                wrongQuestions.push({ q: qText, ans: correctAns, hint: hint });
             }
 
             nextQuestionTimer = setTimeout(() => {
