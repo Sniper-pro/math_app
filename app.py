@@ -3,23 +3,18 @@ import random
 import os
 import time
 
-# 音を鳴らす関数（確実に再生させるためにst.emptyを使用）
 def play_sound(file_name):
     path = f'sound/{file_name}'
     if os.path.exists(path):
         audio_file = open(path, 'rb')
-        audio_bytes = audio_file.read()
-        st.audio(audio_bytes, format='audio/mp3', autoplay=True)
-        # 音が鳴っている間、少しだけ待機して操作を止める
+        st.audio(audio_file.read(), format='audio/mp3', autoplay=True)
         time.sleep(2.0)
 
-# 初期化関数
 def init_game():
     st.session_state.count = 0
     st.session_state.score = 0
     st.session_state.game_over = False
-    st.session_state.show_result = False
-    st.session_state.last_result = None # "correct" or "incorrect"
+    st.session_state.wrong_list = []  # 間違えた問題を保存するリスト
     generate_question()
 
 def generate_question():
@@ -38,16 +33,21 @@ if not st.session_state.game_over:
     user_ans = st.selectbox("こたえをえらんでね", list(range(0, 21)), key="user_choice")
     
     if st.button("こたえあわせ"):
-        # 判定
-        if user_ans == (st.session_state.a + st.session_state.b):
+        correct_ans = st.session_state.a + st.session_state.b
+        if user_ans == correct_ans:
             st.success("せいかい！")
             play_sound('correct.mp3')
             st.session_state.score += 1
         else:
             st.error("ざんねん！")
             play_sound('incorrect.mp3')
+            # 間違えた問題と解説をリストに追加
+            st.session_state.wrong_list.append({
+                'q': f"{st.session_state.a} ＋ {st.session_state.b}",
+                'ans': correct_ans,
+                'hint': f"{st.session_state.a}こ と {st.session_state.b}こ を あわせると {correct_ans}こ になるよ。"
+            })
         
-        # カウントアップして次へ
         st.session_state.count += 1
         if st.session_state.count >= 10:
             st.session_state.game_over = True
@@ -58,6 +58,15 @@ if not st.session_state.game_over:
 else:
     st.header("おつかれさま！")
     st.subheader(f"10もんちゅう {st.session_state.score}もん せいかいでした！")
+    
+    if st.session_state.wrong_list:
+        st.write("---")
+        st.write("復習しよう！間違えた問題はこちら：")
+        for i, item in enumerate(st.session_state.wrong_list):
+            with st.expander(f"{i+1}問目: {item['q']} ＝ ？"):
+                st.write(f"答えは {item['ans']} です。")
+                st.write(item['hint'])
+    
     if st.button("もういちどあそぶ"):
         init_game()
         st.rerun()
