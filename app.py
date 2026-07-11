@@ -11,32 +11,68 @@ def play_sound(file_name):
         st.audio(audio_file.read(), format='audio/mp3', autoplay=True)
         time.sleep(2.0)
 
-def init_game(total_questions):
+def init_game(total_questions, grade):
     st.session_state.count = 0
     st.session_state.score = 0
     st.session_state.game_over = False
     st.session_state.wrong_list = []
     st.session_state.total_questions = total_questions
+    st.session_state.grade = grade
     generate_question()
 
 def generate_question():
     st.session_state.a = random.randint(1, 9)
     st.session_state.b = random.randint(1, 9)
 
+# 1年生向けの「5のまとまり」解説を生成する安全な関数
+def generate_hint(a, b, ans):
+    if a >= 5 and b >= 5:
+        return (f"{a} は 5 と {a - 5} に わかれるね。<br>"
+                f"{b} は 5 と {b - 5} に わかれるね。<br>"
+                f"5 と 5 で 10 になるよ。<br>"
+                f"のこりの {a - 5} と {b - 5} を たすと {(a - 5) + (b - 5)} だね。<br>"
+                f"10 と あわせて {ans} になるよ！")
+    elif a >= 5 and b < 5:
+        return (f"{a} は 5 と {a - 5} に わかれるね。<br>"
+                f"のこりの {a - 5} と {b} を たすと {(a - 5) + b} だね。<br>"
+                f"5 と あわせて {ans} になるよ！")
+    elif a < 5 and b >= 5:
+        return (f"{b} は 5 と {b - 5} に わかれるね。<br>"
+                f"{a} と のこりの {b - 5} を たすと {a + (b - 5)} だね。<br>"
+                f"5 と あわせて {ans} になるよ！")
+    else:
+        return f"{a}こ と {b}こ を あわせると {ans}こ になるよ。ゆびを つかって かぞえてみよう！"
+
 if 'page' not in st.session_state: st.session_state.page = "home"
 
 # --- 画面構成 ---
 if st.session_state.page == "home":
     st.title("おべんきょうドリル")
-    if st.button("さんすう"): st.session_state.page = "setup"; st.rerun()
+    st.subheader("やりたいことをえらんでね")
+    if st.button("さんすう"): st.session_state.page = "subject"; st.rerun()
+
+elif st.session_state.page == "subject":
+    st.header("さんすう：学年をえらんでね")
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("1年生"): st.session_state.grade_select = 1; st.session_state.page = "setup"; st.rerun()
+        if st.button("2年生"): st.warning("2年生はまだ準備中です！")
+    with col2:
+        if st.button("3年生〜6年生"): st.warning("準備中です！")
+    
+    st.write("---")
+    if st.button("最初の画面にもどる"): st.session_state.page = "home"; st.rerun()
 
 elif st.session_state.page == "setup":
-    st.header("設定をえらんでね")
-    total = st.radio("もんだいすう", [5, 10])
+    st.header(f"{st.session_state.grade_select}年生のさんすう")
+    total = st.radio("もんだいすう をえらんでね", [5, 10])
+    
     if st.button("スタート！"):
-        init_game(total)
+        init_game(total, st.session_state.grade_select)
         st.session_state.page = "math"
         st.rerun()
+    
+    st.write("---")
     if st.button("最初の画面にもどる"): st.session_state.page = "home"; st.rerun()
 
 elif st.session_state.page == "math":
@@ -44,30 +80,21 @@ elif st.session_state.page == "math":
         st.markdown(f"## {st.session_state.count + 1}問目")
         st.markdown(f"<h1 style='text-align: center; font-size: 50px;'>{st.session_state.a} ＋ {st.session_state.b} ＝ ？</h1>", unsafe_allow_html=True)
         
-        # キーボード入力を排除し、ドロップダウンのみに限定
+        # ドロップダウン（キーボード入力防止）
         user_ans = st.selectbox("こたえをえらんでね", list(range(0, 21)), key="ans")
         
         if st.button("こたえあわせ"):
             ans = st.session_state.a + st.session_state.b
             if user_ans == ans:
                 st.success("せいかい！")
-                play_sound('correct.mp3') # 正解の音を呼び出し
+                play_sound('correct.mp3')
                 st.session_state.score += 1
             else:
                 st.error("ざんねん！")
-                play_sound('incorrect.mp3') # 不正解の音を呼び出し
-                
-                # 5の分解解説ロジック
-                a, b = st.session_state.a, st.session_state.b
-                a_5 = a - 5
-                b_5 = b - 5
-                hint = (f"{a} は 5 と {a_5} に わかれるよ。<br>"
-                        f"{b} は 5 と {b_5} に わかれるよ。<br>"
-                        f"5 と 5 で 10 になるね。<br>"
-                        f"のこりの {a_5} と {b_5} を たすと {a_5 + b_5} になるね。<br>"
-                        f"あわせて {ans} だよ！")
-                
-                st.session_state.wrong_list.append({'q': f"{a}+{b}", 'ans': ans, 'hint': hint})
+                play_sound('incorrect.mp3')
+                # 安全な解説文を生成して保存
+                hint = generate_hint(st.session_state.a, st.session_state.b, ans)
+                st.session_state.wrong_list.append({'q': f"{st.session_state.a} ＋ {st.session_state.b}", 'ans': ans, 'hint': hint})
             
             st.session_state.count += 1
             if st.session_state.count >= st.session_state.total_questions:
@@ -78,14 +105,18 @@ elif st.session_state.page == "math":
     else:
         st.header("おつかれさま！")
         st.write(f"{st.session_state.total_questions}問中 {st.session_state.score}問 正解！")
-        for i, item in enumerate(st.session_state.wrong_list):
-            # ボタン名を「かいせつ」に変更
-            with st.expander(f"{item['q']} の かいせつ"):
-                st.write(f"答え: {item['ans']}")
-                st.markdown(item['hint'], unsafe_allow_html=True)
         
+        if st.session_state.wrong_list:
+            st.write("---")
+            st.write("ふくしゅう しよう！")
+            for i, item in enumerate(st.session_state.wrong_list):
+                with st.expander(f"{item['q']} の かいせつ"):
+                    st.write(f"答え: {item['ans']}")
+                    st.markdown(item['hint'], unsafe_allow_html=True)
+        
+        st.write("---")
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("もういちどあそぶ"): init_game(st.session_state.total_questions); st.rerun()
+            if st.button("もういちどあそぶ"): init_game(st.session_state.total_questions, st.session_state.grade); st.rerun()
         with col2:
             if st.button("最初の画面にもどる"): st.session_state.page = "home"; st.rerun()
