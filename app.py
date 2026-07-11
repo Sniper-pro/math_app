@@ -2,14 +2,23 @@ import streamlit as st
 import random
 import os
 import time
+import base64
 
-# 音を鳴らす関数
+# 音を鳴らす関数（HTMLで非表示再生する仕組みに変更し、バーを消去・バグを解消）
 def play_sound(file_name):
     path = f'sound/{file_name}'
     if os.path.exists(path):
-        audio_file = open(path, 'rb')
-        st.audio(audio_file.read(), format='audio/mp3', autoplay=True)
-        time.sleep(2.0)
+        with open(path, 'rb') as f:
+            data = f.read()
+            b64 = base64.b64encode(data).decode()
+            # プレイヤーを表示せず、裏側で自動再生させるHTMLタグ
+            md = f"""
+                <audio autoplay style="display:none;">
+                <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+                </audio>
+                """
+            st.markdown(md, unsafe_allow_html=True)
+            time.sleep(2.0)
 
 def init_game(total_questions, grade):
     st.session_state.count = 0
@@ -80,8 +89,8 @@ elif st.session_state.page == "math":
         st.markdown(f"## {st.session_state.count + 1}問目")
         st.markdown(f"<h1 style='text-align: center; font-size: 50px;'>{st.session_state.a} ＋ {st.session_state.b} ＝ ？</h1>", unsafe_allow_html=True)
         
-        # ドロップダウン（キーボード入力防止）
-        user_ans = st.selectbox("こたえをえらんでね", list(range(0, 21)), key="ans")
+        # キーボード起動を完全に防ぐため、スライダー（つまみ）方式に変更
+        user_ans = st.slider("こたえ を あわせてね", min_value=0, max_value=20, value=0, key="ans")
         
         if st.button("こたえあわせ"):
             ans = st.session_state.a + st.session_state.b
@@ -91,8 +100,7 @@ elif st.session_state.page == "math":
                 st.session_state.score += 1
             else:
                 st.error("ざんねん！")
-                play_sound('incorrect.mp3')
-                # 安全な解説文を生成して保存
+                play_sound('incorrect.mp3') # 修正・独立させた不正解音の呼び出し
                 hint = generate_hint(st.session_state.a, st.session_state.b, ans)
                 st.session_state.wrong_list.append({'q': f"{st.session_state.a} ＋ {st.session_state.b}", 'ans': ans, 'hint': hint})
             
