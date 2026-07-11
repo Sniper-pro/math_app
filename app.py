@@ -2,7 +2,6 @@ import streamlit as st
 import random
 import os
 
-# 音を鳴らす汎用関数
 def play_sound(file_name):
     path = f'sound/{file_name}'
     if os.path.exists(path):
@@ -11,35 +10,46 @@ def play_sound(file_name):
 
 st.title("おべんきょうドリル")
 
-if 'page' not in st.session_state: st.session_state.page = "home"
+# 初期化関数
+def init_game():
+    st.session_state.count = 0  # 現在の問題数
+    st.session_state.score = 0  # 正解数
+    st.session_state.game_over = False
+    generate_question()
 
-if st.session_state.page == "home":
-    if st.button("さんすう"): st.session_state.page = "math_grade"; st.rerun()
+def generate_question():
+    st.session_state.a = random.randint(1, 9)
+    st.session_state.b = random.randint(1, 9)
+    st.session_state.ans_check = None # 直前の判定状態をリセット
 
-elif st.session_state.page == "math_grade":
-    st.header("学年をえらんでね")
-    if st.button("1年生"): st.session_state.grade = 1; st.session_state.page = "math"; st.rerun()
+if 'count' not in st.session_state: init_game()
 
-elif st.session_state.page == "math":
-    st.header("1年生のさんすう")
-    if 'a' not in st.session_state:
-        st.session_state.a = random.randint(1, 9)
-        st.session_state.b = random.randint(1, 9)
-    
-    # 巨大なフォントで問題を表示
+if st.session_state.count < 10:
+    st.markdown(f"<h2 style='text-align: center;'>{st.session_state.count + 1}問目</h2>", unsafe_allow_html=True)
     st.markdown(f"<h1 style='text-align: center; font-size: 60px;'>{st.session_state.a} ＋ {st.session_state.b} ＝ ？</h1>", unsafe_allow_html=True)
     
-    # タップしやすいドロップダウン（0〜20まで）
-    options = list(range(0, 21))
-    user_ans = st.selectbox("こたえをえらんでね", options)
+    user_ans = st.selectbox("こたえをえらんでね", list(range(0, 21)), key="user_choice")
     
     if st.button("こたえあわせ"):
         if user_ans == (st.session_state.a + st.session_state.b):
             st.success("せいかい！")
             play_sound('correct.mp3')
-            del st.session_state.a
+            st.session_state.score += 1
         else:
-            st.error("もういちど！")
+            st.error("ざんねん！")
             play_sound('incorrect.mp3')
+        
+        st.session_state.count += 1
+        if st.session_state.count < 10:
+            generate_question()
+            st.rerun()
+        else:
+            st.session_state.game_over = True
+            st.rerun()
 
-    if st.button("もどる"): st.session_state.page = "math_grade"; st.rerun()
+else:
+    st.header("おつかれさま！")
+    st.subheader(f"10もんちゅう {st.session_state.score}もん せいかいでした！")
+    if st.button("もういちどあそぶ"):
+        init_game()
+        st.rerun()
