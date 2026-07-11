@@ -17,95 +17,82 @@
             cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         button:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .btn-warning { background-color: #ffc107; color: black; }
         .btn-success { background-color: #28a745; }
+        .btn-warning { background-color: #ffc107; color: black; }
+        .btn-danger { background-color: #dc3545; }
+        .btn-home { background-color: #17a2b8; font-size: 18px; padding: 10px 20px; width: 90%; max-width: 400px; margin-top: 30px; margin-bottom: 20px; }
         
-        /* 問題の表示エリア */
+        /* 算数用スタイル */
         .math-container { display: block; }
         .question-text { font-size: 50px; font-weight: bold; margin: 20px 0; }
-        
-        /* 筆算（ひっさん）用の縦型レイアウト */
-        .hissan-container {
-            font-size: 50px; font-weight: bold; margin: 20px auto; width: 180px; text-align: right; letter-spacing: 10px;
-        }
+        .hissan-container { font-size: 50px; font-weight: bold; margin: 20px auto; width: 180px; text-align: right; letter-spacing: 10px; }
         .hissan-top { padding-right: 10px; }
         .hissan-bottom { display: flex; justify-content: space-between; border-bottom: 5px solid #333; padding-right: 10px; padding-bottom: 5px; }
-        
-        /* テンキーのレイアウト */
-        .tenkey-pad {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-            max-width: 350px; margin: 20px auto;
-        }
-        .tenkey-btn {
-            font-size: 30px; padding: 15px 0;
-            background-color: #fff; color: #333;
-            border: 2px solid #007bff; border-radius: 8px; font-weight: bold;
-        }
+        .tenkey-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 350px; margin: 20px auto; }
+        .tenkey-btn { font-size: 30px; padding: 15px 0; background-color: #fff; color: #333; border: 2px solid #007bff; border-radius: 8px; font-weight: bold; }
         .tenkey-btn:active { background-color: #007bff; color: #fff; }
         .btn-clear { background-color: #dc3545; color: white; border: none; font-size: 20px; }
         .btn-submit { background-color: #28a745; color: white; border: none; grid-column: span 2; }
-        
-        .input-display {
-            font-size: 40px; font-weight: bold; min-height: 60px; width: 250px;
-            margin: 0 auto 20px auto; line-height: 60px; border: 3px solid #ccc; border-radius: 10px;
-            background-color: #fff; transition: background-color 0.3s;
-        }
+        .input-display { font-size: 40px; font-weight: bold; min-height: 60px; width: 250px; margin: 0 auto 20px auto; line-height: 60px; border: 3px solid #ccc; border-radius: 10px; background-color: #fff; transition: background-color 0.3s; }
 
-        .btn-home {
-            background-color: #17a2b8; font-size: 18px; padding: 10px 20px;
-            width: 90%; max-width: 400px; margin-top: 30px; margin-bottom: 20px;
-        }
+        /* 国語・頭の体操用（4択ボタン）スタイル */
+        .text-question { font-size: 30px; font-weight: bold; margin: 20px auto; max-width: 90%; line-height: 1.5; text-align: left; background: #fff; padding: 20px; border-radius: 10px; border: 2px solid #ccc; }
+        .choice-container { display: grid; grid-template-columns: 1fr; gap: 15px; max-width: 500px; margin: 0 auto; }
+        .choice-btn { font-size: 22px; padding: 20px; background-color: #fff; color: #333; border: 2px solid #28a745; border-radius: 10px; font-weight: bold; text-align: left; }
+        .choice-btn:active { background-color: #28a745; color: #fff; }
         
         .radio-group { text-align: left; display: inline-block; margin-bottom: 15px; }
         .radio-group label { font-size: 20px; font-weight: bold; display: block; margin: 10px 0; cursor: pointer; }
         .radio-group input[type="radio"] { transform: scale(1.5); margin-right: 10px; }
         
-        .setup-section { display: none; } /* 学年ごとの設定を切り替える用 */
-        
+        .setup-section { display: none; }
         .expander { background-color: #e9ecef; margin: 10px auto; width: 95%; border-radius: 5px; text-align: left; }
         .expander-header { padding: 10px; font-size: 18px; font-weight: bold; cursor: pointer; background-color: #dee2e6; border-radius: 5px; }
         .expander-content { padding: 10px; font-size: 18px; display: none; }
         hr { margin: 20px 0; border: 1px solid #ddd; }
 
-        /* --- 横画面（iPad等のランドスケープ）への最適化 --- */
+        /* 横画面最適化 */
         @media (orientation: landscape) and (min-width: 600px) {
             .math-container { display: flex; justify-content: center; align-items: center; gap: 60px; margin-top: 10px; }
             .math-left { display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 300px; }
-            .math-right { flex-grow: 1; max-width: 500px; } /* テンキーのエリアを横に広げる */
-            .tenkey-pad { max-width: 100%; gap: 15px; } /* 横幅いっぱいを使い、ボタンの間隔を調整 */
-            .tenkey-btn { padding: 20px 0; font-size: 35px; } /* ボタン自体を大きく */
-            .btn-home { margin-top: 15px; }
+            .math-right { flex-grow: 1; max-width: 500px; }
+            .tenkey-pad { max-width: 100%; gap: 15px; }
+            .tenkey-btn { padding: 20px 0; font-size: 35px; }
+            .choice-container { grid-template-columns: 1fr 1fr; } /* 横画面時は4択を2列に */
         }
     </style>
 </head>
 <body>
 
+    <!-- 1. ホーム画面 -->
     <div id="page-home" class="page active">
         <h1>おべんきょうドリル</h1>
         <h2>やりたいことをえらんでね</h2>
-        <button onclick="goToPage('page-subject')">さんすう</button>
+        <div>
+            <button onclick="goToPage('page-subject')">さんすう</button>
+        </div>
+        <div>
+            <button class="btn-danger" onclick="goToPage('page-kokugo-subject')">こくご</button>
+        </div>
+        <div>
+            <button class="btn-warning" onclick="goToPage('page-brain-subject')">あたまのたいそう</button>
+        </div>
     </div>
 
+    <!-- =============== さんすう =============== -->
     <div id="page-subject" class="page">
         <h2>さんすう：学年をえらんでね</h2>
         <div>
-            <button onclick="selectGrade(1)">1年生</button>
-            <button class="btn-success" onclick="selectGrade(2)">2年生</button>
+            <button onclick="selectGrade(1, 'math')">1年生</button>
+            <button class="btn-success" onclick="selectGrade(2, 'math')">2年生</button>
         </div>
-        <div>
-            <button class="btn-warning" onclick="selectGrade(3)">3年生</button>
-        </div>
-        <hr>
-        <button class="btn-home" onclick="goToHome()">🏠 最初の画面にもどる</button>
+        <div><button class="btn-warning" onclick="selectGrade(3, 'math')">3年生</button></div>
+        <hr><button class="btn-home" onclick="goToHome()">🏠 最初の画面にもどる</button>
     </div>
 
-    <!-- 設定画面 -->
     <div id="page-setup" class="page">
         <h2 id="setup-title"></h2>
-        
         <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
-            
-            <!-- 1年生用の設定 -->
             <div id="setup-grade-1" class="setup-section">
                 <div>
                     <h3>けいさん</h3>
@@ -123,8 +110,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- 2年生用の設定 -->
             <div id="setup-grade-2" class="setup-section">
                 <div>
                     <h3>けいさん・むずかしさ</h3>
@@ -135,8 +120,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- 3年生用の設定 -->
             <div id="setup-grade-3" class="setup-section">
                 <div>
                     <h3>けいさん</h3>
@@ -145,43 +128,30 @@
                     </div>
                 </div>
             </div>
-
         </div>
-
         <hr>
         <h3>もんだいすう</h3>
         <div class="radio-group" style="display: block; text-align: center;">
             <label style="display: inline; margin-right: 20px;"><input type="radio" name="total_q" value="5" checked> 5問</label>
             <label style="display: inline;"><input type="radio" name="total_q" value="10"> 10問</label>
         </div>
-        
-        <br>
-        <button onclick="startGame()">スタート！</button>
-        <hr>
-        <button class="btn-home" onclick="goToHome()">🏠 最初の画面にもどる</button>
+        <br><button onclick="startGame('math')">スタート！</button>
+        <hr><button class="btn-home" onclick="goToHome()">🏠 最初の画面にもどる</button>
     </div>
 
-    <!-- 問題画面 -->
     <div id="page-math" class="page">
-        <h2 id="question-count">1問目</h2>
-        
+        <h2 id="question-count-math">1問目</h2>
         <div class="math-container">
             <div class="math-left">
-                <!-- 通常の横式 -->
                 <div id="question-text" class="question-text"></div>
-                
-                <!-- 筆算用の縦式 -->
                 <div id="question-hissan" class="hissan-container" style="display: none;">
                     <div id="hissan-top" class="hissan-top"></div>
                     <div id="hissan-bottom" class="hissan-bottom">
-                        <span id="hissan-symbol"></span>
-                        <span id="hissan-num2"></span>
+                        <span id="hissan-symbol"></span><span id="hissan-num2"></span>
                     </div>
                 </div>
-                
                 <div id="input-display" class="input-display"></div>
             </div>
-            
             <div class="math-right">
                 <div class="tenkey-pad">
                     <button class="tenkey-btn" onclick="inputNum(7)">7</button>
@@ -195,14 +165,45 @@
                     <button class="tenkey-btn" onclick="inputNum(3)">3</button>
                     <button class="tenkey-btn btn-clear" onclick="clearInput()">けす</button>
                     <button class="tenkey-btn" onclick="inputNum(0)">0</button>
-                    <button class="tenkey-btn btn-submit" onclick="submitAnswer()">こたえる</button>
+                    <button class="tenkey-btn btn-submit" onclick="submitMathAnswer()">こたえる</button>
                 </div>
             </div>
         </div>
         <button class="btn-home" onclick="goToHome()">🏠 最初の画面にもどる</button>
     </div>
 
-    <!-- 結果画面 -->
+    <!-- =============== こくご =============== -->
+    <div id="page-kokugo-subject" class="page">
+        <h2>こくご：学年をえらんでね</h2>
+        <div>
+            <button class="btn-danger" onclick="selectGrade(1, 'kokugo')">1年生 (かんじ・ことば)</button>
+            <button class="btn-warning" onclick="alert('準備中です！')">2年生〜6年生</button>
+        </div>
+        <hr><button class="btn-home" onclick="goToHome()">🏠 最初の画面にもどる</button>
+    </div>
+
+    <!-- =============== あたまのたいそう =============== -->
+    <div id="page-brain-subject" class="page">
+        <h2>あたまのたいそう：レベルをえらんでね</h2>
+        <div>
+            <button class="btn-warning" onclick="selectGrade(1, 'brain')">レベル1 (ひらめき)</button>
+            <button class="btn-warning" onclick="alert('準備中です！図形問題などは今後追加します。')">レベル2 (ちゅうがくじゅけん)</button>
+        </div>
+        <hr><button class="btn-home" onclick="goToHome()">🏠 最初の画面にもどる</button>
+    </div>
+
+    <!-- =============== 共通4択クイズ画面（こくご・あたまのたいそう共用） =============== -->
+    <div id="page-quiz" class="page">
+        <h2 id="question-count-quiz">1問目</h2>
+        <div id="quiz-text" class="text-question">問題文がここに入ります。</div>
+        <div id="quiz-choices" class="choice-container">
+            <!-- JavaScriptでボタンを生成 -->
+        </div>
+        <button class="btn-home" onclick="goToHome()">🏠 最初の画面にもどる</button>
+    </div>
+
+
+    <!-- =============== 共通結果画面 =============== -->
     <div id="page-result" class="page">
         <h1>おつかれさま！</h1>
         <h2 id="result-score">10問中 8問 正解！</h2>
@@ -212,216 +213,276 @@
             <div id="wrong-list"></div>
         </div>
         <hr>
-        <button onclick="startGame(true)">もういちどあそぶ</button>
-        <br>
-        <button class="btn-home" onclick="goToHome()">🏠 最初の画面にもどる</button>
+        <button onclick="goToHome()">もういちどあそぶ</button>
     </div>
 
+    <!-- JavaScript ロジック -->
     <script>
+        // 音声（キャッシュ回避）
+        function playAudio(isCorrect) {
+            const src = isCorrect ? 'sound/correct.mp3?v=1' : 'sound/incorrect.mp3?v=1';
+            const audio = new Audio(src);
+            audio.play().catch(e => console.log("再生ブロック回避:", e));
+        }
+
+        // --- 共通状態 ---
+        let currentSubject = ''; // math, kokugo, brain
         let currentGrade = 1;
         let totalQuestions = 5;
         let currentCount = 0;
         let score = 0;
-        let valA = 0;
-        let valB = 0;
-        let currentMode = ''; // add, sub, mul, div, hissan_add, hissan_sub
-        let currentDiff = 1;
         let wrongQuestions = [];
-        let userInputValue = "";
-        
         let isProcessing = false; 
         let nextQuestionTimer = null; 
 
-        function playAudio(isCorrect) {
-            const src = isCorrect ? 'sound/correct.mp3?v=1' : 'sound/incorrect.mp3?v=1';
-            const audio = new Audio(src);
-            audio.play().catch(e => console.log("再生エラー:", e));
-        }
+        // --- 算数用状態 ---
+        let mathA = 0, mathB = 0;
+        let mathMode = ''; 
+        let mathDiff = 1;
+        let userInputValue = "";
 
+        // --- 国語・頭の体操用 データ構造 ---
+        // ※システム肥大化を防ぐため、サンプル問題のみ実装しています。本来は外部ファイル化すべき領域です。
+        const kokugoData_G1 = [
+            { q: "「犬」の正しいよみかたは？", choices: ["いぬ", "ねこ", "とり", "うし"], ans: "いぬ", hint: "ワンワンとなく どうぶつ だよ。" },
+            { q: "「学校」の正しいよみかたは？", choices: ["がっこう", "がこう", "がっごう", "がくこう"], ans: "がっこう", hint: "みんなが べんきょうしにいく ところ だよ。" },
+            { q: "「青い〇〇」にはいることばは？", choices: ["そら", "りんご", "いちご", "バナナ"], ans: "そら", hint: "はれているときの 上のほうの いろだよ。" },
+            { q: "「水」の正しいよみかたは？", choices: ["みず", "おゆ", "こおり", "うみ"], ans: "みず", hint: "のどがかわいたときに のむもの だよ。" },
+            { q: "はんたい の ことば は？\n「大きい」 ⇔ 「〇〇〇」", choices: ["ちいさい", "ながい", "おもい", "ひろい"], ans: "ちいさい", hint: "「大きい」の はんたい だよ。" }
+        ];
+
+        const brainData_L1 = [
+            { q: "ある法則で並んでいます。\n１，２，３，〇，５\n〇に入る数字は？", choices: ["４", "６", "７", "８"], ans: "４", hint: "じゅんばんに かずが ふえているよ。" },
+            { q: "パンはパンでも、たべられないパンは？", choices: ["フライパン", "しょくパン", "メロンパン", "カレーパン"], ans: "フライパン", hint: "りょうり を するときに つかう どうぐ だよ。" },
+            { q: "いつも ぐるぐる まわっている 家にあるものは？", choices: ["せんぷうき", "れいぞうこ", "テレビ", "つくえ"], ans: "せんぷうき", hint: "あついときに かぜを おこしてくれる もの だよ。" },
+            { q: "「あ、い、う、〇、お」\n〇に入るのは？", choices: ["え", "か", "き", "く"], ans: "え", hint: "あいうえお の じゅんばん だよ。" },
+            { q: "かさをささずに あるいているのに、かみが ぬれないのは なぜ？", choices: ["はげているから", "はしっているから", "めを閉じているから", "うわぎをきているから"], ans: "はげているから", hint: "あたまに かみのけが ないから だよ。（とんち問題）" }
+        ];
+
+        let currentQuizList = [];
+        let currentQuizData = null; // 現在出題中の問題
+
+        // --- 画面遷移制御 ---
         function goToPage(pageId) {
-            if (nextQuestionTimer !== null) {
-                clearTimeout(nextQuestionTimer);
-                nextQuestionTimer = null;
-            }
+            if (nextQuestionTimer !== null) { clearTimeout(nextQuestionTimer); nextQuestionTimer = null; }
             isProcessing = false;
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             window.scrollTo(0, 0);
         }
-
         function goToHome() { goToPage('page-home'); }
 
-        function selectGrade(grade) {
+        function selectGrade(grade, subject) {
             currentGrade = grade;
-            document.getElementById('setup-title').innerText = grade + "年生のさんすう";
-            
-            // 学年に応じて設定画面の表示を切り替え
-            document.querySelectorAll('.setup-section').forEach(el => el.style.display = 'none');
-            document.getElementById('setup-grade-' + grade).style.display = 'block';
-            
-            goToPage('page-setup');
+            currentSubject = subject;
+            if (subject === 'math') {
+                document.getElementById('setup-title').innerText = grade + "年生のさんすう";
+                document.querySelectorAll('.setup-section').forEach(el => el.style.display = 'none');
+                document.getElementById('setup-grade-' + grade).style.display = 'block';
+                goToPage('page-setup');
+            } else if (subject === 'kokugo' || subject === 'brain') {
+                // 国語と頭の体操は設定画面をスキップして即開始（今回は全5問固定）
+                totalQuestions = 5;
+                startGame(subject);
+            }
         }
 
-        function startGame(isRetry = false) {
-            if (!isRetry) {
-                const qRadios = document.getElementsByName('total_q');
-                for (let r of qRadios) if (r.checked) totalQuestions = parseInt(r.value);
-                
-                if (currentGrade === 1) {
-                    for (let r of document.getElementsByName('op_g1')) if (r.checked) currentMode = r.value;
-                    for (let r of document.getElementsByName('diff_g1')) if (r.checked) currentDiff = parseInt(r.value);
-                } else if (currentGrade === 2) {
-                    for (let r of document.getElementsByName('op_g2')) if (r.checked) currentMode = r.value;
-                } else if (currentGrade === 3) {
-                    for (let r of document.getElementsByName('op_g3')) if (r.checked) currentMode = r.value;
-                }
-            }
+        // --- ゲーム開始ルーチン ---
+        function startGame(subject) {
+            currentSubject = subject;
             currentCount = 0;
             score = 0;
             wrongQuestions = [];
-            generateQuestion();
-            goToPage('page-math');
+
+            if (subject === 'math') {
+                const qRadios = document.getElementsByName('total_q');
+                for (let r of qRadios) if (r.checked) totalQuestions = parseInt(r.value);
+                if (currentGrade === 1) {
+                    for (let r of document.getElementsByName('op_g1')) if (r.checked) mathMode = r.value;
+                    for (let r of document.getElementsByName('diff_g1')) if (r.checked) mathDiff = parseInt(r.value);
+                } else if (currentGrade === 2) {
+                    for (let r of document.getElementsByName('op_g2')) if (r.checked) mathMode = r.value;
+                } else if (currentGrade === 3) {
+                    for (let r of document.getElementsByName('op_g3')) if (r.checked) mathMode = r.value;
+                }
+                generateMathQuestion();
+                goToPage('page-math');
+            } else if (subject === 'kokugo') {
+                // 配列をシャッフルしてセット
+                currentQuizList = [...kokugoData_G1].sort(() => Math.random() - 0.5);
+                generateQuizQuestion();
+                goToPage('page-quiz');
+            } else if (subject === 'brain') {
+                currentQuizList = [...brainData_L1].sort(() => Math.random() - 0.5);
+                generateQuizQuestion();
+                goToPage('page-quiz');
+            }
         }
 
-        function generateQuestion() {
-            // 表示モードのリセット
+        // ==========================================
+        // 算数のロジック（変更なし）
+        // ==========================================
+        function generateMathQuestion() {
             document.getElementById('question-text').style.display = 'block';
             document.getElementById('question-hissan').style.display = 'none';
-
             if (currentGrade === 1) {
-                if (currentDiff === 1) {
-                    valA = Math.floor(Math.random() * 9) + 1;
-                    valB = Math.floor(Math.random() * 9) + 1;
-                } else if (currentDiff === 2) {
-                    valA = Math.floor(Math.random() * 90) + 10;
-                    valB = Math.floor(Math.random() * 9) + 1;
-                } else {
-                    valA = Math.floor(Math.random() * 90) + 10;
-                    valB = Math.floor(Math.random() * 90) + 10;
-                }
-                if (currentMode === 'sub' && valA < valB) { let t = valA; valA = valB; valB = t; }
-                const sym = currentMode === 'add' ? '＋' : '－';
-                document.getElementById('question-text').innerText = `${valA} ${sym} ${valB} ＝ ？`;
-                
+                if (mathDiff === 1) { mathA = Math.floor(Math.random() * 9) + 1; mathB = Math.floor(Math.random() * 9) + 1; }
+                else if (mathDiff === 2) { mathA = Math.floor(Math.random() * 90) + 10; mathB = Math.floor(Math.random() * 9) + 1; }
+                else { mathA = Math.floor(Math.random() * 90) + 10; mathB = Math.floor(Math.random() * 90) + 10; }
+                if (mathMode === 'sub' && mathA < mathB) { let t = mathA; mathA = mathB; mathB = t; }
+                const sym = mathMode === 'add' ? '＋' : '－';
+                document.getElementById('question-text').innerText = `${mathA} ${sym} ${mathB} ＝ ？`;
             } else if (currentGrade === 2) {
-                if (currentMode === 'mul') {
-                    // 九九
-                    valA = Math.floor(Math.random() * 9) + 1;
-                    valB = Math.floor(Math.random() * 9) + 1;
-                    document.getElementById('question-text').innerText = `${valA} × ${valB} ＝ ？`;
+                if (mathMode === 'mul') {
+                    mathA = Math.floor(Math.random() * 9) + 1; mathB = Math.floor(Math.random() * 9) + 1;
+                    document.getElementById('question-text').innerText = `${mathA} × ${mathB} ＝ ？`;
                 } else {
-                    // 筆算（2ケタ+2ケタ、または2ケタ-2ケタ）
-                    valA = Math.floor(Math.random() * 90) + 10;
-                    valB = Math.floor(Math.random() * 90) + 10;
-                    if (currentMode === 'hissan_sub' && valA < valB) { let t = valA; valA = valB; valB = t; }
-                    
+                    mathA = Math.floor(Math.random() * 90) + 10; mathB = Math.floor(Math.random() * 90) + 10;
+                    if (mathMode === 'hissan_sub' && mathA < mathB) { let t = mathA; mathA = mathB; mathB = t; }
                     document.getElementById('question-text').style.display = 'none';
                     document.getElementById('question-hissan').style.display = 'block';
-                    document.getElementById('hissan-top').innerText = valA;
-                    document.getElementById('hissan-symbol').innerText = currentMode === 'hissan_add' ? '+' : '-';
-                    document.getElementById('hissan-num2').innerText = valB;
+                    document.getElementById('hissan-top').innerText = mathA;
+                    document.getElementById('hissan-symbol').innerText = mathMode === 'hissan_add' ? '+' : '-';
+                    document.getElementById('hissan-num2').innerText = mathB;
                 }
             } else if (currentGrade === 3) {
-                // 割り算（余りなし。九九の逆算）
-                let ans = Math.floor(Math.random() * 9) + 1;
-                valB = Math.floor(Math.random() * 9) + 1;
-                valA = ans * valB;
-                document.getElementById('question-text').innerText = `${valA} ÷ ${valB} ＝ ？`;
+                let ans = Math.floor(Math.random() * 9) + 1; mathB = Math.floor(Math.random() * 9) + 1; mathA = ans * mathB;
+                document.getElementById('question-text').innerText = `${mathA} ÷ ${mathB} ＝ ？`;
             }
-
-            document.getElementById('question-count').innerText = (currentCount + 1) + "問目";
+            document.getElementById('question-count-math').innerText = (currentCount + 1) + "問目";
             userInputValue = "";
-            updateDisplay();
+            updateMathDisplay();
             isProcessing = false;
         }
 
-        function inputNum(num) {
-            if (isProcessing) return;
-            if (userInputValue.length < 4) { // 答えが3桁以上になる場合も考慮
-                userInputValue += num.toString();
-                updateDisplay();
-            }
-        }
-
-        function clearInput() {
-            if (isProcessing) return;
-            userInputValue = "";
-            updateDisplay();
-        }
-
-        function updateDisplay() {
+        function inputNum(num) { if (!isProcessing && userInputValue.length < 4) { userInputValue += num.toString(); updateMathDisplay(); } }
+        function clearInput() { if (!isProcessing) { userInputValue = ""; updateMathDisplay(); } }
+        function updateMathDisplay() {
             document.getElementById('input-display').innerText = userInputValue;
             document.getElementById('input-display').style.backgroundColor = '#fff';
+            document.getElementById('input-display').style.color = '#333';
         }
 
-        function getCorrectAns() {
-            if (currentMode === 'add' || currentMode === 'hissan_add') return valA + valB;
-            if (currentMode === 'sub' || currentMode === 'hissan_sub') return valA - valB;
-            if (currentMode === 'mul') return valA * valB;
-            if (currentMode === 'div') return valA / valB;
+        function getMathCorrectAns() {
+            if (mathMode === 'add' || mathMode === 'hissan_add') return mathA + mathB;
+            if (mathMode === 'sub' || mathMode === 'hissan_sub') return mathA - mathB;
+            if (mathMode === 'mul') return mathA * mathB;
+            if (mathMode === 'div') return mathA / mathB;
             return 0;
         }
 
-        function generateHint(a, b, ans, mode) {
+        function getMathHint(a, b, ans, mode) {
             let eq = "";
             if (mode === 'add') eq = `${a} ＋ ${b} ＝ ${ans}`;
             else if (mode === 'sub') eq = `${a} － ${b} ＝ ${ans}`;
             else if (mode === 'mul') eq = `${a} × ${b} ＝ ${ans}`;
             else if (mode === 'div') eq = `${a} ÷ ${b} ＝ ${ans}`;
-            else if (mode === 'hissan_add' || mode === 'hissan_sub') return `【こたえ】 ${ans}<br>くらい を あわせて けいさん しよう！`;
+            else return `【こたえ】 ${ans}<br>くらい を あわせて けいさん しよう！`;
 
-            if (currentGrade === 1 && mode === 'add' && currentDiff === 1) {
+            if (currentGrade === 1 && mode === 'add' && mathDiff === 1) {
                 if (a >= 5 && b >= 5) return `${a} は 5 と ${a - 5} に わかれるね。<br>${b} は 5 と ${b - 5} に わかれるね。<br>5 と 5 で 10 になるよ。<br>のこりの ${a - 5} と ${b - 5} を たすと ${(a - 5) + (b - 5)} だね。<br>10 と あわせて ${ans} になるよ！`;
                 else if (a >= 5 && b < 5) return `${a} は 5 と ${a - 5} に わかれるね。<br>のこりの ${a - 5} と ${b} を たすと ${(a - 5) + b} だね。<br>5 と あわせて ${ans} になるよ！`;
                 else if (a < 5 && b >= 5) return `${b} は 5 と ${b - 5} に わかれるね。<br>${a} と のこりの ${b - 5} を たすと ${a + (b - 5)} だね。<br>5 と あわせて ${ans} になるよ！`;
                 else return `${eq}<br>ゆびを つかって かぞえてみよう！`;
-            } else if (mode === 'mul') {
-                return `【こたえ】 ${ans}<br>九九の「${a}のだん」を おもいだそう！`;
-            } else if (mode === 'div') {
-                return `【こたえ】 ${ans}<br>九九の「${b}のだん」で こたえが ${a} になるものを さがそう！`;
-            } else {
-                return `【こたえ】 ${ans}<br>ひっさん を つかって けいさん してみよう！`;
-            }
+            } else if (mode === 'mul') { return `【こたえ】 ${ans}<br>九九の「${a}のだん」を おもいだそう！`; }
+            else if (mode === 'div') { return `【こたえ】 ${ans}<br>九九の「${b}のだん」で こたえが ${a} になるものを さがそう！`; }
+            else { return `【こたえ】 ${ans}<br>ひっさん を つかって けいさん してみよう！`; }
         }
 
-        function submitAnswer() {
+        function submitMathAnswer() {
             if (userInputValue === "" || isProcessing) return;
             isProcessing = true; 
-
             const userAns = parseInt(userInputValue);
-            const correctAns = getCorrectAns();
+            const correctAns = getMathCorrectAns();
             const display = document.getElementById('input-display');
 
             if (userAns === correctAns) {
-                playAudio(true);
-                score++;
-                display.style.backgroundColor = '#c8e6c9';
-                display.innerText = "〇 せいかい";
+                playAudio(true); score++;
+                display.style.backgroundColor = '#c8e6c9'; display.innerText = "〇"; display.style.color = 'green';
             } else {
                 playAudio(false);
-                display.style.backgroundColor = '#ffcdd2';
-                display.innerText = "× ざんねん";
+                display.style.backgroundColor = '#ffcdd2'; display.innerText = "×"; display.style.color = 'red';
                 
-                const hint = generateHint(valA, valB, correctAns, currentMode);
                 let qText = "";
-                if (currentMode === 'add') qText = `${valA} ＋ ${valB}`;
-                else if (currentMode === 'sub') qText = `${valA} － ${valB}`;
-                else if (currentMode === 'mul') qText = `${valA} × ${valB}`;
-                else if (currentMode === 'div') qText = `${valA} ÷ ${valB}`;
-                else if (currentMode === 'hissan_add') qText = `(ひっさん) ${valA} ＋ ${valB}`;
-                else if (currentMode === 'hissan_sub') qText = `(ひっさん) ${valA} － ${valB}`;
+                if (mathMode === 'add') qText = `${mathA} ＋ ${mathB}`;
+                else if (mathMode === 'sub') qText = `${mathA} － ${mathB}`;
+                else if (mathMode === 'mul') qText = `${mathA} × ${mathB}`;
+                else if (mathMode === 'div') qText = `${mathA} ÷ ${mathB}`;
+                else if (mathMode === 'hissan_add') qText = `(ひっさん) ${mathA} ＋ ${mathB}`;
+                else if (mathMode === 'hissan_sub') qText = `(ひっさん) ${mathA} － ${mathB}`;
 
-                wrongQuestions.push({ q: qText, ans: correctAns, hint: hint });
+                wrongQuestions.push({ q: qText, ans: correctAns, hint: getMathHint(mathA, mathB, correctAns, mathMode) });
             }
+            nextQuestionTimer = setTimeout(() => { proceedNextQuestion('math'); }, 1500);
+        }
 
-            nextQuestionTimer = setTimeout(() => {
-                currentCount++;
-                if (currentCount >= totalQuestions) {
-                    showResult();
-                } else {
-                    generateQuestion();
-                }
-            }, 1500);
+
+        // ==========================================
+        // 国語・頭の体操のロジック（4択形式）
+        // ==========================================
+        function generateQuizQuestion() {
+            currentQuizData = currentQuizList[currentCount];
+            document.getElementById('question-count-quiz').innerText = (currentCount + 1) + "問目";
+            
+            // 問題文の表示（改行コードを<br>に変換）
+            document.getElementById('quiz-text').innerHTML = currentQuizData.q.replace(/\n/g, '<br>');
+
+            // 選択肢ボタンの生成
+            const choicesContainer = document.getElementById('quiz-choices');
+            choicesContainer.innerHTML = ''; // クリア
+            
+            // 選択肢のシャッフル
+            let shuffledChoices = [...currentQuizData.choices].sort(() => Math.random() - 0.5);
+            
+            shuffledChoices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.innerText = choice;
+                btn.onclick = () => submitQuizAnswer(choice, btn);
+                choicesContainer.appendChild(btn);
+            });
+            isProcessing = false;
+        }
+
+        function submitQuizAnswer(userAns, clickedBtn) {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const correctAns = currentQuizData.ans;
+            
+            if (userAns === correctAns) {
+                playAudio(true);
+                score++;
+                clickedBtn.style.backgroundColor = '#c8e6c9';
+                clickedBtn.style.color = 'green';
+                clickedBtn.innerText = "〇 " + userAns;
+            } else {
+                playAudio(false);
+                clickedBtn.style.backgroundColor = '#ffcdd2';
+                clickedBtn.style.color = 'red';
+                clickedBtn.innerText = "× " + userAns;
+                
+                // 正解を配列に保存
+                wrongQuestions.push({ 
+                    q: currentQuizData.q.replace(/\n/g, ' '), 
+                    ans: correctAns, 
+                    hint: currentQuizData.hint 
+                });
+            }
+            nextQuestionTimer = setTimeout(() => { proceedNextQuestion(currentSubject); }, 1500);
+        }
+
+        // ==========================================
+        // 共通：次の問題へ ＆ 結果画面
+        // ==========================================
+        function proceedNextQuestion(subject) {
+            currentCount++;
+            if (currentCount >= totalQuestions) {
+                showResult();
+            } else {
+                if (subject === 'math') generateMathQuestion();
+                else generateQuizQuestion();
+            }
         }
 
         function showResult() {
@@ -435,11 +496,9 @@
                 wrongQuestions.forEach((item) => {
                     const expanderDiv = document.createElement('div');
                     expanderDiv.className = "expander";
-                    
                     const headerDiv = document.createElement('div');
                     headerDiv.className = "expander-header";
                     headerDiv.innerText = `▼ ${item.q} の かいせつ`;
-                    
                     const contentDiv = document.createElement('div');
                     contentDiv.className = "expander-content";
                     contentDiv.innerHTML = `<strong>答え: ${item.ans}</strong><br><br>${item.hint}`;
@@ -453,7 +512,6 @@
                             headerDiv.innerText = `▲ とじる`;
                         }
                     };
-                    
                     expanderDiv.appendChild(headerDiv);
                     expanderDiv.appendChild(contentDiv);
                     wrongListDiv.appendChild(expanderDiv);
