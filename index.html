@@ -5,38 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>おべんきょうドリル</title>
     <style>
-        body { font-family: sans-serif; text-align: center; margin: 0; padding: 20px; background-color: #f9f9f9; }
+        /* 全体の設定（下部に固定ボタン用の余白を確保） */
+        body { font-family: sans-serif; text-align: center; margin: 0; padding: 10px; background-color: #f9f9f9; padding-bottom: 80px; }
         .page { display: none; }
         .active { display: block; }
-        h1 { font-size: 40px; margin-bottom: 10px; }
-        h2 { font-size: 30px; }
-        .question-text { font-size: 60px; font-weight: bold; margin: 30px 0; }
+        h1 { font-size: 30px; margin-bottom: 10px; }
+        h2 { font-size: 24px; }
+        .question-text { font-size: 50px; font-weight: bold; margin: 20px 0; }
         
-        /* ボタンのデザイン */
+        /* 共通ボタンのデザイン */
         button {
-            font-size: 24px; padding: 15px 30px; margin: 10px;
+            font-size: 20px; padding: 15px 25px; margin: 10px;
             background-color: #007bff; color: white; border: none; border-radius: 10px;
             cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         button:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .btn-secondary { background-color: #6c757d; }
         .btn-warning { background-color: #ffc107; color: black; }
-        .btn-home { background-color: #17a2b8; font-size: 20px; padding: 10px 20px; margin-top: 30px; }
         
-        /* ラジオボタンを大きくする */
-        .radio-group label { font-size: 35px; font-weight: bold; margin: 0 15px; cursor: pointer; }
-        .radio-group input[type="radio"] { transform: scale(2); margin-right: 10px; }
+        /* 0〜20の選択肢ボタン（グリッドレイアウトで5列に自動折り返し） */
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            max-width: 400px;
+            margin: 0 auto 20px auto;
+        }
+        .number-btn {
+            font-size: 24px;
+            padding: 15px 0;
+            margin: 0;
+            background-color: #fff;
+            color: #333;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .number-btn:active { background-color: #007bff; color: #fff; }
+
+        /* 常に最下部に表示される「最初に戻る」ボタン */
+        .fixed-home-btn {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #17a2b8;
+            font-size: 18px;
+            padding: 10px 20px;
+            width: 90%;
+            max-width: 400px;
+            z-index: 1000; /* 他の要素より上に表示 */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
         
-        /* スライダーのデザイン */
-        input[type="range"] { width: 80%; margin: 20px 0; transform: scale(1.5); }
-        .slider-value { font-size: 50px; font-weight: bold; color: #ff5722; margin-bottom: 20px; }
+        /* ラジオボタン */
+        .radio-group label { font-size: 24px; font-weight: bold; margin: 0 10px; cursor: pointer; }
+        .radio-group input[type="radio"] { transform: scale(1.5); margin-right: 5px; }
         
         /* 解説のアコーディオン */
-        .expander { background-color: #e9ecef; margin: 10px auto; width: 90%; border-radius: 5px; text-align: left; }
-        .expander-header { padding: 15px; font-size: 22px; font-weight: bold; cursor: pointer; background-color: #dee2e6; border-radius: 5px; }
-        .expander-content { padding: 15px; font-size: 20px; display: none; }
+        .expander { background-color: #e9ecef; margin: 10px auto; width: 95%; border-radius: 5px; text-align: left; }
+        .expander-header { padding: 10px; font-size: 18px; font-weight: bold; cursor: pointer; background-color: #dee2e6; border-radius: 5px; }
+        .expander-content { padding: 10px; font-size: 18px; display: none; }
         
-        hr { margin: 30px 0; border: 1px solid #ddd; }
+        hr { margin: 20px 0; border: 1px solid #ddd; }
     </style>
 </head>
 <body>
@@ -58,8 +88,6 @@
         <div>
             <button class="btn-warning" onclick="alert('準備中です！')">3年生〜6年生</button>
         </div>
-        <hr>
-        <button class="btn-home" onclick="goToPage('page-home')">最初の画面にもどる</button>
     </div>
 
     <!-- 3. 設定画面 -->
@@ -72,8 +100,6 @@
         </div>
         <br><br>
         <button onclick="startGame()">スタート！</button>
-        <hr>
-        <button class="btn-home" onclick="goToPage('page-home')">最初の画面にもどる</button>
     </div>
 
     <!-- 4. 問題画面 -->
@@ -81,13 +107,9 @@
         <h2 id="question-count">1問目</h2>
         <div id="question-text" class="question-text">? ＋ ? ＝ ？</div>
         
-        <!-- スライダー入力 -->
-        <div>
-            <input type="range" id="ans-slider" min="0" max="20" value="0" oninput="updateSliderValue()">
-            <div id="slider-display" class="slider-value">0</div>
-        </div>
-        
-        <button onclick="checkAnswer()">こたえあわせ</button>
+        <h2>こたえを えらんでね</h2>
+        <!-- JavaScriptでここに0〜20のボタンを自動配置します -->
+        <div id="number-pad" class="number-pad"></div>
     </div>
 
     <!-- 5. 結果画面 -->
@@ -103,16 +125,17 @@
         
         <hr>
         <button onclick="startGame(true)">もういちどあそぶ</button>
-        <button class="btn-secondary" onclick="goToPage('page-home')">最初の画面にもどる</button>
     </div>
+
+    <!-- 常に最下部に表示されるホームボタン（どこにいても押せます） -->
+    <button class="fixed-home-btn" onclick="goToHome()">🏠 最初の画面にもどる</button>
 
     <!-- JavaScript ロジック -->
     <script>
-        // 音声ファイルの準備
-        const soundCorrect = new Audio('sound/correct.mp3');
-        const soundIncorrect = new Audio('sound/incorrect.mp3');
+        // 音声ファイルの準備（"?v=1"をつけてブラウザのキャッシュを強制回避）
+        const soundCorrect = new Audio('sound/correct.mp3?v=1');
+        const soundIncorrect = new Audio('sound/incorrect.mp3?v=1');
 
-        // 状態を管理する変数
         let currentGrade = 1;
         let totalQuestions = 5;
         let currentCount = 0;
@@ -121,25 +144,35 @@
         let valB = 0;
         let wrongQuestions = [];
 
-        // 画面切り替え関数
+        // ページ読み込み時に0〜20のボタンを生成
+        window.onload = function() {
+            const pad = document.getElementById('number-pad');
+            for(let i=0; i<=20; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'number-btn';
+                btn.innerText = i;
+                // ボタンを押した瞬間に checkAnswer に数字を送る
+                btn.onclick = function() { checkAnswer(i); };
+                pad.appendChild(btn);
+            }
+        };
+
         function goToPage(pageId) {
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
+            window.scrollTo(0, 0); // ページ遷移時に一番上へスクロール
         }
 
-        // 学年選択
+        function goToHome() {
+            goToPage('page-home');
+        }
+
         function selectGrade(grade) {
             currentGrade = grade;
             document.getElementById('setup-title').innerText = grade + "年生のさんすう";
             goToPage('page-setup');
         }
 
-        // スライダーの表示更新
-        function updateSliderValue() {
-            document.getElementById('slider-display').innerText = document.getElementById('ans-slider').value;
-        }
-
-        // ゲーム開始
         function startGame(isRetry = false) {
             if (!isRetry) {
                 const radios = document.getElementsByName('total_q');
@@ -154,19 +187,13 @@
             goToPage('page-math');
         }
 
-        // 問題の生成
         function generateQuestion() {
-            valA = Math.floor(Math.random() * 9) + 1; // 1〜9
-            valB = Math.floor(Math.random() * 9) + 1; // 1〜9
+            valA = Math.floor(Math.random() * 9) + 1;
+            valB = Math.floor(Math.random() * 9) + 1;
             document.getElementById('question-count').innerText = (currentCount + 1) + "問目";
             document.getElementById('question-text').innerText = valA + " ＋ " + valB + " ＝ ？";
-            
-            // スライダーを0にリセット
-            document.getElementById('ans-slider').value = 0;
-            updateSliderValue();
         }
 
-        // 1年生向け解説の生成ロジック
         function generateHint(a, b, ans) {
             if (a >= 5 && b >= 5) {
                 return `${a} は 5 と ${a - 5} に わかれるね。<br>${b} は 5 と ${b - 5} に わかれるね。<br>5 と 5 で 10 になるよ。<br>のこりの ${a - 5} と ${b - 5} を たすと ${(a - 5) + (b - 5)} だね。<br>10 と あわせて ${ans} になるよ！`;
@@ -179,12 +206,10 @@
             }
         }
 
-        // 答え合わせ処理
-        function checkAnswer() {
-            const userAns = parseInt(document.getElementById('ans-slider').value);
+        // タップされたボタンの数字（userAns）を受け取って判定
+        function checkAnswer(userAns) {
             const correctAns = valA + valB;
 
-            // HTMLでの音声再生は、ボタンクリック時のイベント内であれば確実に鳴ります
             if (userAns === correctAns) {
                 soundCorrect.currentTime = 0;
                 soundCorrect.play();
@@ -207,18 +232,15 @@
             }
         }
 
-        // 結果画面の表示
         function showResult() {
             document.getElementById('result-score').innerText = totalQuestions + "問中 " + score + "問 正解！";
-            
             const wrongContainer = document.getElementById('wrong-list-container');
             const wrongListDiv = document.getElementById('wrong-list');
-            wrongListDiv.innerHTML = ""; // リセット
+            wrongListDiv.innerHTML = "";
             
             if (wrongQuestions.length > 0) {
                 wrongContainer.style.display = "block";
-                wrongQuestions.forEach((item, index) => {
-                    // アコーディオン（展開式）のHTMLを生成
+                wrongQuestions.forEach((item) => {
                     const expanderDiv = document.createElement('div');
                     expanderDiv.className = "expander";
                     
@@ -230,7 +252,6 @@
                     contentDiv.className = "expander-content";
                     contentDiv.innerHTML = `<strong>答え: ${item.ans}</strong><br><br>${item.hint}`;
                     
-                    // タップで開閉する仕組み
                     headerDiv.onclick = function() {
                         if (contentDiv.style.display === "block") {
                             contentDiv.style.display = "none";
@@ -248,7 +269,6 @@
             } else {
                 wrongContainer.style.display = "none";
             }
-            
             goToPage('page-result');
         }
     </script>
