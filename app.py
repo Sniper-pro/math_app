@@ -3,8 +3,8 @@ import random
 import os
 import time
 
+# 音を鳴らす関数
 def play_sound(file_name):
-    # ファイル名が正しいか必ず確認してください
     path = f'sound/{file_name}'
     if os.path.exists(path):
         audio_file = open(path, 'rb')
@@ -37,6 +37,7 @@ elif st.session_state.page == "setup":
         init_game(total)
         st.session_state.page = "math"
         st.rerun()
+    if st.button("最初の画面にもどる"): st.session_state.page = "home"; st.rerun()
 
 elif st.session_state.page == "math":
     if not st.session_state.game_over:
@@ -52,8 +53,7 @@ elif st.session_state.page == "math":
                 st.session_state.score += 1
             else:
                 st.error("ざんねん！")
-                play_sound('incorrect.mp3') # 不正解の音
-                # 10の分解解説ロジック
+                play_sound('incorrect.mp3') # 不正解の音（修正済み）
                 diff = 10 - st.session_state.a
                 remainder = st.session_state.b - diff
                 hint = f"{st.session_state.a} に {diff} をたすと 10 になるね。<br>のこりの {remainder} を たすと {ans} になるよ！"
@@ -72,4 +72,9 @@ elif st.session_state.page == "math":
             with st.expander(f"{item['q']} の かんがえかた"):
                 st.write(f"答え: {item['ans']}")
                 st.markdown(item['hint'], unsafe_allow_html=True)
-        if st.button("もういちど"): st.session_state.page = "home"; st.rerun()
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("もういちどあそぶ"): init_game(st.session_state.total_questions); st.rerun()
+        with col2:
+            if st.button("最初の画面にもどる"): st.session_state.page = "home"; st.rerun()
