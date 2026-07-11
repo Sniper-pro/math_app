@@ -10,7 +10,6 @@
         .active { display: block; }
         h1 { font-size: 30px; margin-bottom: 10px; }
         h2 { font-size: 24px; }
-        .question-text { font-size: 50px; font-weight: bold; margin: 20px 0; }
         
         button {
             font-size: 20px; padding: 15px 25px; margin: 10px;
@@ -20,7 +19,11 @@
         button:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .btn-warning { background-color: #ffc107; color: black; }
         
-        /* テンキー（電卓型入力）のレイアウト */
+        /* 問題画面のコンテナ（通常は縦積み） */
+        .math-container { display: block; }
+        .question-text { font-size: 50px; font-weight: bold; margin: 20px 0; }
+        
+        /* テンキーのレイアウト */
         .tenkey-pad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -29,28 +32,21 @@
             margin: 20px auto;
         }
         .tenkey-btn {
-            font-size: 30px;
-            padding: 15px 0;
-            background-color: #fff;
-            color: #333;
-            border: 2px solid #007bff;
-            border-radius: 8px;
+            font-size: 30px; padding: 15px 0;
+            background-color: #fff; color: #333;
+            border: 2px solid #007bff; border-radius: 8px;
             font-weight: bold;
         }
         .tenkey-btn:active { background-color: #007bff; color: #fff; }
         .btn-clear { background-color: #dc3545; color: white; border: none; font-size: 20px; }
         .btn-submit { background-color: #28a745; color: white; border: none; grid-column: span 2; }
         
-        /* 入力結果の表示エリア */
         .input-display {
-            font-size: 40px; font-weight: bold;
-            min-height: 60px; width: 250px;
-            margin: 0 auto; line-height: 60px;
-            border: 3px solid #ccc; border-radius: 10px;
+            font-size: 40px; font-weight: bold; min-height: 60px; width: 250px;
+            margin: 0 auto; line-height: 60px; border: 3px solid #ccc; border-radius: 10px;
             background-color: #fff; transition: background-color 0.3s;
         }
 
-        /* 重なりを防止した、通常のホームボタン */
         .btn-home {
             background-color: #17a2b8; font-size: 18px; padding: 10px 20px;
             width: 90%; max-width: 400px; margin-top: 30px; margin-bottom: 20px;
@@ -65,6 +61,27 @@
         .expander-content { padding: 10px; font-size: 18px; display: none; }
         
         hr { margin: 20px 0; border: 1px solid #ddd; }
+
+        /* --- 横画面（ランドスケープモード）への最適化 --- */
+        @media (orientation: landscape) and (min-width: 600px) {
+            .math-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 40px;
+                margin-top: 10px;
+            }
+            .math-left {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+            .math-right { margin-top: 0; }
+            .question-text { margin: 10px 0; }
+            .tenkey-pad { margin: 0 auto; }
+            .btn-home { margin-top: 15px; }
+        }
     </style>
 </head>
 <body>
@@ -103,7 +120,6 @@
             <div>
                 <h3>むずかしさ</h3>
                 <div class="radio-group">
-                    <!-- 表記を修正 -->
                     <label><input type="radio" name="difficulty" value="1" checked> 1ケタ と 1ケタ</label>
                     <label><input type="radio" name="difficulty" value="2"> 2ケタ と 1ケタ</label>
                     <label><input type="radio" name="difficulty" value="3"> 2ケタ と 2ケタ</label>
@@ -127,25 +143,32 @@
     <!-- 問題画面 -->
     <div id="page-math" class="page">
         <h2 id="question-count">1問目</h2>
-        <div id="question-text" class="question-text">? ＋ ? ＝ ？</div>
         
-        <div id="input-display" class="input-display"></div>
-        
-        <div class="tenkey-pad">
-            <button class="tenkey-btn" onclick="inputNum(7)">7</button>
-            <button class="tenkey-btn" onclick="inputNum(8)">8</button>
-            <button class="tenkey-btn" onclick="inputNum(9)">9</button>
-            <button class="tenkey-btn" onclick="inputNum(4)">4</button>
-            <button class="tenkey-btn" onclick="inputNum(5)">5</button>
-            <button class="tenkey-btn" onclick="inputNum(6)">6</button>
-            <button class="tenkey-btn" onclick="inputNum(1)">1</button>
-            <button class="tenkey-btn" onclick="inputNum(2)">2</button>
-            <button class="tenkey-btn" onclick="inputNum(3)">3</button>
-            <button class="tenkey-btn btn-clear" onclick="clearInput()">けす</button>
-            <button class="tenkey-btn" onclick="inputNum(0)">0</button>
-            <button class="tenkey-btn btn-submit" onclick="submitAnswer()">こたえる</button>
+        <!-- 横画面対応のための階層化 -->
+        <div class="math-container">
+            <div class="math-left">
+                <div id="question-text" class="question-text">? ＋ ? ＝ ？</div>
+                <div id="input-display" class="input-display"></div>
+            </div>
+            
+            <div class="math-right">
+                <div class="tenkey-pad">
+                    <button class="tenkey-btn" onclick="inputNum(7)">7</button>
+                    <button class="tenkey-btn" onclick="inputNum(8)">8</button>
+                    <button class="tenkey-btn" onclick="inputNum(9)">9</button>
+                    <button class="tenkey-btn" onclick="inputNum(4)">4</button>
+                    <button class="tenkey-btn" onclick="inputNum(5)">5</button>
+                    <button class="tenkey-btn" onclick="inputNum(6)">6</button>
+                    <button class="tenkey-btn" onclick="inputNum(1)">1</button>
+                    <button class="tenkey-btn" onclick="inputNum(2)">2</button>
+                    <button class="tenkey-btn" onclick="inputNum(3)">3</button>
+                    <button class="tenkey-btn btn-clear" onclick="clearInput()">けす</button>
+                    <button class="tenkey-btn" onclick="inputNum(0)">0</button>
+                    <button class="tenkey-btn btn-submit" onclick="submitAnswer()">こたえる</button>
+                </div>
+            </div>
         </div>
-        <!-- テンキーの下に配置（スクロールすれば押せる） -->
+
         <button class="btn-home" onclick="goToHome()">🏠 最初の画面にもどる</button>
     </div>
 
@@ -177,18 +200,16 @@
         let currentDifficulty = 1;
         let userInputValue = "";
         
-        let isProcessing = false; // 連打防止フラグ
-        let nextQuestionTimer = null; // 画面遷移時のバグを防ぐタイマー変数
+        let isProcessing = false; 
+        let nextQuestionTimer = null; 
 
-        // 音声を鳴らす専用関数（毎回新しいオブジェクトを生成してブラウザの制限を回避）
         function playAudio(isCorrect) {
             const src = isCorrect ? 'sound/correct.mp3?v=1' : 'sound/incorrect.mp3?v=1';
             const audio = new Audio(src);
-            audio.play().catch(e => console.log("再生ブロック回避:", e));
+            audio.play().catch(e => console.log("再生エラー:", e));
         }
 
         function goToPage(pageId) {
-            // タイマーが動いていれば必ず破壊する（ホームに戻った直後に問題画面へ拉致されるバグの修正）
             if (nextQuestionTimer !== null) {
                 clearTimeout(nextQuestionTimer);
                 nextQuestionTimer = null;
@@ -313,7 +334,6 @@
                 wrongQuestions.push({ q: `${valA} ${symbol} ${valB}`, ans: correctAns, hint: hint });
             }
 
-            // タイマーを変数に格納し、画面遷移時にキャンセルできるようにする
             nextQuestionTimer = setTimeout(() => {
                 currentCount++;
                 if (currentCount >= totalQuestions) {
