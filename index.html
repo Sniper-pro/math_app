@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>おべんきょうドリル</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin: 0; padding: 20px; background-color: #f9f9f9; }
+        .page { display: none; }
+        .active { display: block; }
+        h1 { font-size: 40px; margin-bottom: 10px; }
+        h2 { font-size: 30px; }
+        .question-text { font-size: 60px; font-weight: bold; margin: 30px 0; }
+        
+        /* ボタンのデザイン */
+        button {
+            font-size: 24px; padding: 15px 30px; margin: 10px;
+            background-color: #007bff; color: white; border: none; border-radius: 10px;
+            cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        button:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn-secondary { background-color: #6c757d; }
+        .btn-warning { background-color: #ffc107; color: black; }
+        .btn-home { background-color: #17a2b8; font-size: 20px; padding: 10px 20px; margin-top: 30px; }
+        
+        /* ラジオボタンを大きくする */
+        .radio-group label { font-size: 35px; font-weight: bold; margin: 0 15px; cursor: pointer; }
+        .radio-group input[type="radio"] { transform: scale(2); margin-right: 10px; }
+        
+        /* スライダーのデザイン */
+        input[type="range"] { width: 80%; margin: 20px 0; transform: scale(1.5); }
+        .slider-value { font-size: 50px; font-weight: bold; color: #ff5722; margin-bottom: 20px; }
+        
+        /* 解説のアコーディオン */
+        .expander { background-color: #e9ecef; margin: 10px auto; width: 90%; border-radius: 5px; text-align: left; }
+        .expander-header { padding: 15px; font-size: 22px; font-weight: bold; cursor: pointer; background-color: #dee2e6; border-radius: 5px; }
+        .expander-content { padding: 15px; font-size: 20px; display: none; }
+        
+        hr { margin: 30px 0; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+
+    <!-- 1. ホーム画面 -->
+    <div id="page-home" class="page active">
+        <h1>おべんきょうドリル</h1>
+        <h2>やりたいことをえらんでね</h2>
+        <button onclick="goToPage('page-subject')">さんすう</button>
+    </div>
+
+    <!-- 2. 学年選択画面 -->
+    <div id="page-subject" class="page">
+        <h2>さんすう：学年をえらんでね</h2>
+        <div>
+            <button onclick="selectGrade(1)">1年生</button>
+            <button class="btn-warning" onclick="alert('2年生はまだ準備中です！')">2年生</button>
+        </div>
+        <div>
+            <button class="btn-warning" onclick="alert('準備中です！')">3年生〜6年生</button>
+        </div>
+        <hr>
+        <button class="btn-home" onclick="goToPage('page-home')">最初の画面にもどる</button>
+    </div>
+
+    <!-- 3. 設定画面 -->
+    <div id="page-setup" class="page">
+        <h2 id="setup-title">1年生のさんすう</h2>
+        <h2>もんだいすう をえらんでね</h2>
+        <div class="radio-group">
+            <label><input type="radio" name="total_q" value="5" checked> 5問</label>
+            <label><input type="radio" name="total_q" value="10"> 10問</label>
+        </div>
+        <br><br>
+        <button onclick="startGame()">スタート！</button>
+        <hr>
+        <button class="btn-home" onclick="goToPage('page-home')">最初の画面にもどる</button>
+    </div>
+
+    <!-- 4. 問題画面 -->
+    <div id="page-math" class="page">
+        <h2 id="question-count">1問目</h2>
+        <div id="question-text" class="question-text">? ＋ ? ＝ ？</div>
+        
+        <!-- スライダー入力 -->
+        <div>
+            <input type="range" id="ans-slider" min="0" max="20" value="0" oninput="updateSliderValue()">
+            <div id="slider-display" class="slider-value">0</div>
+        </div>
+        
+        <button onclick="checkAnswer()">こたえあわせ</button>
+    </div>
+
+    <!-- 5. 結果画面 -->
+    <div id="page-result" class="page">
+        <h1>おつかれさま！</h1>
+        <h2 id="result-score">10問中 8問 正解！</h2>
+        
+        <div id="wrong-list-container" style="display: none;">
+            <hr>
+            <h2>ふくしゅう しよう！</h2>
+            <div id="wrong-list"></div>
+        </div>
+        
+        <hr>
+        <button onclick="startGame(true)">もういちどあそぶ</button>
+        <button class="btn-secondary" onclick="goToPage('page-home')">最初の画面にもどる</button>
+    </div>
+
+    <!-- JavaScript ロジック -->
+    <script>
+        // 音声ファイルの準備
+        const soundCorrect = new Audio('sound/correct.mp3');
+        const soundIncorrect = new Audio('sound/incorrect.mp3');
+
+        // 状態を管理する変数
+        let currentGrade = 1;
+        let totalQuestions = 5;
+        let currentCount = 0;
+        let score = 0;
+        let valA = 0;
+        let valB = 0;
+        let wrongQuestions = [];
+
+        // 画面切り替え関数
+        function goToPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // 学年選択
+        function selectGrade(grade) {
+            currentGrade = grade;
+            document.getElementById('setup-title').innerText = grade + "年生のさんすう";
+            goToPage('page-setup');
+        }
+
+        // スライダーの表示更新
+        function updateSliderValue() {
+            document.getElementById('slider-display').innerText = document.getElementById('ans-slider').value;
+        }
+
+        // ゲーム開始
+        function startGame(isRetry = false) {
+            if (!isRetry) {
+                const radios = document.getElementsByName('total_q');
+                for (let radio of radios) {
+                    if (radio.checked) totalQuestions = parseInt(radio.value);
+                }
+            }
+            currentCount = 0;
+            score = 0;
+            wrongQuestions = [];
+            generateQuestion();
+            goToPage('page-math');
+        }
+
+        // 問題の生成
+        function generateQuestion() {
+            valA = Math.floor(Math.random() * 9) + 1; // 1〜9
+            valB = Math.floor(Math.random() * 9) + 1; // 1〜9
+            document.getElementById('question-count').innerText = (currentCount + 1) + "問目";
+            document.getElementById('question-text').innerText = valA + " ＋ " + valB + " ＝ ？";
+            
+            // スライダーを0にリセット
+            document.getElementById('ans-slider').value = 0;
+            updateSliderValue();
+        }
+
+        // 1年生向け解説の生成ロジック
+        function generateHint(a, b, ans) {
+            if (a >= 5 && b >= 5) {
+                return `${a} は 5 と ${a - 5} に わかれるね。<br>${b} は 5 と ${b - 5} に わかれるね。<br>5 と 5 で 10 になるよ。<br>のこりの ${a - 5} と ${b - 5} を たすと ${(a - 5) + (b - 5)} だね。<br>10 と あわせて ${ans} になるよ！`;
+            } else if (a >= 5 && b < 5) {
+                return `${a} は 5 と ${a - 5} に わかれるね。<br>のこりの ${a - 5} と ${b} を たすと ${(a - 5) + b} だね。<br>5 と あわせて ${ans} になるよ！`;
+            } else if (a < 5 && b >= 5) {
+                return `${b} は 5 と ${b - 5} に わかれるね。<br>${a} と のこりの ${b - 5} を たすと ${a + (b - 5)} だね。<br>5 と あわせて ${ans} になるよ！`;
+            } else {
+                return `${a}こ と ${b}こ を あわせると ${ans}こ になるよ。ゆびを つかって かぞえてみよう！`;
+            }
+        }
+
+        // 答え合わせ処理
+        function checkAnswer() {
+            const userAns = parseInt(document.getElementById('ans-slider').value);
+            const correctAns = valA + valB;
+
+            // HTMLでの音声再生は、ボタンクリック時のイベント内であれば確実に鳴ります
+            if (userAns === correctAns) {
+                soundCorrect.currentTime = 0;
+                soundCorrect.play();
+                score++;
+                alert("せいかい！");
+            } else {
+                soundIncorrect.currentTime = 0;
+                soundIncorrect.play();
+                alert("ざんねん！ 答えは " + correctAns + " でした。");
+                
+                const hint = generateHint(valA, valB, correctAns);
+                wrongQuestions.push({ q: `${valA} ＋ ${valB}`, ans: correctAns, hint: hint });
+            }
+
+            currentCount++;
+            if (currentCount >= totalQuestions) {
+                showResult();
+            } else {
+                generateQuestion();
+            }
+        }
+
+        // 結果画面の表示
+        function showResult() {
+            document.getElementById('result-score').innerText = totalQuestions + "問中 " + score + "問 正解！";
+            
+            const wrongContainer = document.getElementById('wrong-list-container');
+            const wrongListDiv = document.getElementById('wrong-list');
+            wrongListDiv.innerHTML = ""; // リセット
+            
+            if (wrongQuestions.length > 0) {
+                wrongContainer.style.display = "block";
+                wrongQuestions.forEach((item, index) => {
+                    // アコーディオン（展開式）のHTMLを生成
+                    const expanderDiv = document.createElement('div');
+                    expanderDiv.className = "expander";
+                    
+                    const headerDiv = document.createElement('div');
+                    headerDiv.className = "expander-header";
+                    headerDiv.innerText = `▼ ${item.q} の かいせつ`;
+                    
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = "expander-content";
+                    contentDiv.innerHTML = `<strong>答え: ${item.ans}</strong><br><br>${item.hint}`;
+                    
+                    // タップで開閉する仕組み
+                    headerDiv.onclick = function() {
+                        if (contentDiv.style.display === "block") {
+                            contentDiv.style.display = "none";
+                            headerDiv.innerText = `▼ ${item.q} の かいせつ`;
+                        } else {
+                            contentDiv.style.display = "block";
+                            headerDiv.innerText = `▲ とじる`;
+                        }
+                    };
+                    
+                    expanderDiv.appendChild(headerDiv);
+                    expanderDiv.appendChild(contentDiv);
+                    wrongListDiv.appendChild(expanderDiv);
+                });
+            } else {
+                wrongContainer.style.display = "none";
+            }
+            
+            goToPage('page-result');
+        }
+    </script>
+</body>
+</html>
